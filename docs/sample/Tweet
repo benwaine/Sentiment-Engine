@@ -1,0 +1,121 @@
+array(20) {
+  ["user"]=>
+  array(34) {
+    ["profile_link_color"]=>
+    string(6) "6eb710"
+    ["listed_count"]=>
+    int(0)
+    ["profile_sidebar_border_color"]=>
+    string(6) "000000"
+    ["followers_count"]=>
+    int(114)
+    ["show_all_inline_media"]=>
+    bool(false)
+    ["geo_enabled"]=>
+    bool(false)
+    ["friends_count"]=>
+    int(110)
+    ["statuses_count"]=>
+    int(4536)
+    ["profile_use_background_image"]=>
+    bool(true)
+    ["created_at"]=>
+    string(30) "Tue Aug 18 21:15:25 +0000 2009"
+    ["location"]=>
+    string(6) "Brasil"
+    ["profile_background_color"]=>
+    string(6) "0B0F00"
+    ["profile_background_image_url"]=>
+    string(71) "http://a0.twimg.com/profile_background_images/48969483/nvthewild.br.jpg"
+    ["description"]=>
+    string(23) "Oi, eu gosto de gatos !"
+    ["contributors_enabled"]=>
+    bool(false)
+    ["favourites_count"]=>
+    int(0)
+    ["verified"]=>
+    bool(false)
+    ["time_zone"]=>
+    string(8) "Brasilia"
+    ["profile_text_color"]=>
+    string(6) "737373"
+    ["protected"]=>
+    bool(false)
+    ["url"]=>
+    string(51) "http://www.orkut.com.br/Main#Community?cmm=52200985"
+    ["profile_image_url"]=>
+    string(60) "http://a1.twimg.com/profile_images/1161785572/001_normal.JPG"
+    ["follow_request_sent"]=>
+    NULL
+    ["notifications"]=>
+    NULL
+    ["profile_sidebar_fill_color"]=>
+    string(6) "202B01"
+    ["name"]=>
+    string(11) "Pedro Vitor"
+    ["id_str"]=>
+    string(8) "66803885"
+    ["is_translator"]=>
+    bool(false)
+    ["lang"]=>
+    string(2) "en"
+    ["profile_background_tile"]=>
+    bool(false)
+    ["screen_name"]=>
+    string(12) "pedrogalacci"
+    ["id"]=>
+    int(66803885)
+    ["following"]=>
+    NULL
+    ["utc_offset"]=>
+    int(-10800)
+  }
+  ["coordinates"]=>
+  NULL
+  ["retweet_count"]=>
+  int(0)
+  ["truncated"]=>
+  bool(false)
+  ["text"]=>
+  string(118) ""já não importa o que passou ou se tudo agente errou deixa eu te fazer feliz como eu sonhei, como você sempre quis""
+  ["favorited"]=>
+  bool(false)
+  ["created_at"]=>
+  string(30) "Sun Feb 06 20:05:14 +0000 2011"
+  ["in_reply_to_user_id"]=>
+  NULL
+  ["in_reply_to_status_id"]=>
+  NULL
+  ["source"]=>
+  string(3) "web"
+  ["in_reply_to_screen_name"]=>
+  NULL
+  ["in_reply_to_status_id_str"]=>
+  NULL
+  ["entities"]=>
+  array(3) {
+    ["user_mentions"]=>
+    array(0) {
+    }
+    ["urls"]=>
+    array(0) {
+    }
+    ["hashtags"]=>
+    array(0) {
+    }
+  }
+  ["contributors"]=>
+  NULL
+  ["place"]=>
+  NULL
+  ["geo"]=>
+  NULL
+  ["retweeted"]=>
+  bool(false)
+  ["in_reply_to_user_id_str"]=>
+  NULL
+  ["id_str"]=>
+  string(17) "34341870649741312"
+  ["id"]=>
+  int(34341870649741312)
+}
