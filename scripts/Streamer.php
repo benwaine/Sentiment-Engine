@@ -9,7 +9,6 @@ $doctrine  = $bootstrap->getResource('doctrine');
 $em = $doctrine->getEntityManager();
 
 $scheme   = 'http://';
-//$url      = 'stream.twitter.com/1/statuses/sample.json';
 $url      = 'stream.twitter.com/1/statuses/filter.json';
 
 $username = "bwaine";
