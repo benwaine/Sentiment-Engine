@@ -1,5 +1,6 @@
 <?php
 namespace SE\Entity;
+use SE\Tweet\Classifier;
 /**
  * Description of Tweet
  *
@@ -7,7 +8,7 @@ namespace SE\Entity;
  * @subpackage Entity
  * @author     Ben Waine <ben@ben-waine.co.uk>
  */
-class Tweet
+class Tweet implements Classifier\IClassifiable
 {
    /**
     * Tweet ID From Twiter
@@ -35,7 +36,7 @@ class Tweet
     *
     * @var string
     */
-   protected $tweet;
+   protected $text;
 
    /**
     * Date Tweet
@@ -107,9 +108,9 @@ class Tweet
     *
     * @return string
     */
-   public function getTweet()
+   public function getText()
    {
-       return $this->tweet;
+       return $this->text;
    }
 
    /**
@@ -117,9 +118,9 @@ class Tweet
     *
     * @param string $tweet Tweet Text
     */
-   public function setTweet($tweet)
+   public function setText($tweet)
    {
-       $this->tweet = $tweet;
+       $this->text = $tweet;
    }
 
    /**

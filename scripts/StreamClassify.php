@@ -1,4 +1,6 @@
 <?php
+use SE\Tweet\Classifier;
+
 define('APPLICATION_ENV', 'development');
 ini_set('html_errors', 0);
 require_once 'bootstrap.php';
@@ -33,7 +35,6 @@ $fn = function($data)
 
 };
 
-
 $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
 $factory->setMethod('POST');
@@ -44,21 +45,27 @@ $streamer = $factory->getStreamIterator($fn);
 
 $count  = 0;
 
-$tweets = array();
-
-foreach($streamer as $tweet)
+foreach($streamer as $tweet) /* @var $tweet SE\Entity\ClassifiedTweet  */
 {
      $count++;
-     
-     if($tweet instanceof \SE\Entity\Tweet)
+
+     if($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
      {
+         // Perisit the tweet
          $em->persist($tweet);
+
+         // Cassify it
+         $classification = new SE\Entity\TweetClassification($tweet);
+         $classification->setClassificationType(Classifier\Smiley::CLASSIFIER_TYPE);
+         $classification->setClassificationResult(Classifier\Smiley::classify($tweet));
+         $classification->setClassificationTime(new DateTime());
+
+         $em->persist($classification);
      }
-     
+
      if($count % 10 == 0)
      {
          $em->flush();
      }
-     
-}
 
+}
