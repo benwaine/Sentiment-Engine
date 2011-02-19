@@ -1,7 +1,6 @@
 <?php
 use SE\Tweet\Classifier;
 
-define('APPLICATION_ENV', 'development');
 ini_set('html_errors', 0);
 require_once 'bootstrap.php';
 
@@ -39,33 +38,29 @@ $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
 $factory->setMethod('POST');
 $factory->addTrack(':)');
-$factory->addTrack(':-(');
+$factory->addTrack(':(');
 
 $streamer = $factory->getStreamIterator($fn);
 
-$count  = 0;
+$classificationSet =  new SE\Entity\ClassificationSet();
+$classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
+$classificationSet->setDate(new DateTime());
+
+
+$manager = new SE\Tweet\Classifier\SampleManager(new SE\Tweet\Classifier\Smiley(), $classificationSet, 5, 5);
+
+$em->persist($classificationSet);
 
 foreach($streamer as $tweet) /* @var $tweet SE\Entity\ClassifiedTweet  */
 {
-     $count++;
-
      if($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
      {
-         // Perisit the tweet
          $em->persist($tweet);
-
-         // Cassify it
-         $classification = new SE\Entity\TweetClassification($tweet);
-         $classification->setClassificationType(Classifier\Smiley::CLASSIFIER_TYPE);
-         $classification->setClassificationResult(Classifier\Smiley::classify($tweet));
-         $classification->setClassificationTime(new DateTime());
-
-         $em->persist($classification);
+         $manager->addToSample($tweet);
+         if($manager->isComplete())
+         {
+             $em->flush();
+             break;
+         }   
      }
-
-     if($count % 10 == 0)
-     {
-         $em->flush();
-     }
-
 }

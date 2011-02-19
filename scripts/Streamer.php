@@ -1,5 +1,5 @@
 <?php
-define('APPLICATION_ENV', 'development');
+
 ini_set('html_errors', 0);
 require_once 'bootstrap.php';
 

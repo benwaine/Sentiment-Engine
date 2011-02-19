@@ -25,6 +25,11 @@ class Smiley extends Classifier
      */
     const SADFACE = ':(';
 
+    /**
+     * This classifiers Type designation.
+     *
+     * @var integer
+     */
     const CLASSIFIER_TYPE = 1;
 
     /**
@@ -34,19 +39,19 @@ class Smiley extends Classifier
      *
      * @return integer
      */
-    public static function classify(IClassifiable $subject)
+    public function classify(IClassifiable $subject)
     {
         $text = $subject->getText();
 
-        if(strpos($text, self::SADFACE) && strpos($text, self::HAPPYFACE))
+        if((strpos($text, self::SADFACE) !== FALSE) && (strpos($text, self::HAPPYFACE) !== FALSE))
         {
             $classification = self::CLASSIFICATION_RESULT_NEUTRAL;
         }
-        elseif(strpos($text, self::HAPPYFACE))
+        elseif(strpos($text, self::HAPPYFACE) !== FALSE)
         {
             $classification = self::CLASSIFICATION_RESULT_POSITIVE;
         }
-        elseif(strpos($text, self::SADFACE))
+        elseif(strpos($text, self::SADFACE) !== FALSE)
         {
             $classification = self::CLASSIFICATION_RESULT_NEGATIVE;
         }
@@ -54,7 +59,7 @@ class Smiley extends Classifier
         {
             $classification = self::CLASSIFICATION_RESULT_NEUTRAL;
         }
-        
+
         return $classification;
     }
 }

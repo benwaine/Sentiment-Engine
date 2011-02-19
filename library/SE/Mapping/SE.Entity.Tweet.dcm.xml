@@ -26,5 +26,12 @@
 
         <field name="date" column="tweet_date" type="datetime" />
 
+        <one-to-many target-entity="SE\Entity\TweetClassification"
+               mapped-by="TweetClassification" field="classifications">
+            <cascade>
+                <cascade-persist />
+            </cascade>
+        </one-to-many>
+
     </entity>
 </doctrine-mapping>

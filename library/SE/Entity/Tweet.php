@@ -1,6 +1,7 @@
 <?php
 namespace SE\Entity;
 use SE\Tweet\Classifier;
+use Doctrine\Common\Collections;
 /**
  * Description of Tweet
  *
@@ -45,6 +46,13 @@ class Tweet implements Classifier\IClassifiable
     */
    protected $date;
 
+   /**
+    * Tweet Classifications
+    *
+    * @var ArrayCollection
+    */
+   protected $classifications;
+
 
    /**
     * Instantaites an instance of Tweet
@@ -55,7 +63,7 @@ class Tweet implements Classifier\IClassifiable
     */
    public function __construct($initVals = null)
    {
-
+        $this->classifications = new Collections\ArrayCollection();
    }
 
 
@@ -165,6 +173,26 @@ class Tweet implements Classifier\IClassifiable
    public function setTweetId($tweetId)
    {
        $this->tweetId = $tweetId;
+   }
+
+   /**
+    * Tweet Classifications
+    *
+    * @return TweetClassification
+    */
+   public function getClassifications()
+   {
+       return $this->classifications;
+   }
+
+   /**
+    * Adds a classification to the Tweet
+    *
+    * @return void
+    */
+   public function addClassification($classification)
+   {
+        $this->classifications[] = $classification;
    }
 
 
