@@ -23,9 +23,13 @@
         <field name="classificationTime" type="datetime" column="tweetclassification_datetime" />
     
         <many-to-one target-entity="SE\Entity\Tweet" field="tweet">
-            <join-column name="tweetclassification_tweet_id" referenced-column-name="tweet_id" />
+            <join-column name="tweetclassification_tweet_id" referenced-column-name="tweet_id"  />
         </many-to-one>
 
+        <many-to-one target-entity="SE\Entity\ClassificationSet" field="classificationSet">
+            <join-column name="tweetclassification_tweet_classificationset"
+            referenced-column-name="tweet_classification_set_id" />
+        </many-to-one>
         
     </entity>
 

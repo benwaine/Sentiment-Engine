@@ -14,21 +14,21 @@ abstract class Classifier
      *
      * @var integer
      */
-    const CLASSIFICATION_RESULT_NEGATIVE = 0;
+    const CLASSIFICATION_RESULT_NEGATIVE = 1;
 
     /**
      * Result returned in the event of a possitive classification
      *
      * @var integer
      */
-    const CLASSIFICATION_RESULT_POSITIVE = 1;
+    const CLASSIFICATION_RESULT_POSITIVE = 2;
 
     /**
      * Result returned in the event of a nutral / unclassifiable subject.
      *
      * @var integer
      */
-    const CLASSIFICATION_RESULT_NEUTRAL = 2;
+    const CLASSIFICATION_RESULT_NEUTRAL = 3;
 
     /**
      * Classifies the subject.
@@ -37,7 +37,7 @@ abstract class Classifier
      *
      * @return integer
      */
-    abstract static public function classify(IClassifiable $subject);
+    abstract public function classify(IClassifiable $subject);
 
 
 }

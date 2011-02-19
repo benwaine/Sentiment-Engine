@@ -9,7 +9,6 @@ namespace SE\Entity;
  */
 class TweetClassification
 {
-    
     /**
      * Classified Tweet Id.
      *
@@ -44,6 +43,13 @@ class TweetClassification
      * @var DateTime
      */
     protected $classificationTime;
+
+    /**
+     * Classification set the Classification belongs to.
+     *
+     * @var ClassificationSet
+     */
+    protected $classificationSet;
 
     /**
      * Sets a reference to the classified tweet.
@@ -165,6 +171,30 @@ class TweetClassification
     {
         $this->classificationTime = $classificationTime;
     }
+
+    /**
+     * Get the classification set.
+     *
+     * @return ClassificationSet
+     */
+    public function getClassificationSet()
+    {
+        return $this->classificationSet;
+    }
+
+    /**
+     * Set the classificationSet this classification belongs to.
+     *
+     * @param ClassificationSet $classificationSet
+     *
+     * @return void
+     */
+    public function setClassificationSet($classificationSet)
+    {
+        $this->classificationSet = $classificationSet;
+    }
+
+
 
 }
 
