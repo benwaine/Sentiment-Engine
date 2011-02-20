@@ -5,7 +5,6 @@
 
     <target name="prepare">
         <echo msg="Prepare..." />
-        <mkdir dir="${builddir}" />
         <mkdir dir="${builddir}/logs" />
         <mkdir dir="${builddir}/logs/coverage" />
         <mkdir dir="${builddir}/docs" />
@@ -15,14 +14,14 @@
     <!-- Unit Tests & coverage analysis -->
     <target name="phpunit" depends="prepare">
         <echo msg="PHP Unit..." />
-        <exec command="phpunit --log-junit ${builddir}/logs/phpunit.xml --log-pmd ${builddir}/logs/phpunit.pmd.xml --coverage-clover ${builddir}/logs/coverage/clover.xml --coverage-html ${builddir}/logs/coverage/ ${ws}/source/tests"
+        <exec command="phpunit --log-junit ${builddir}/logs/phpunit.xml --log-pmd ${builddir}/logs/phpunit.pmd.xml --coverage-clover ${builddir}/logs/coverage/clover.xml --coverage-html ${builddir}/logs/coverage/ ${ws}/tests"
               checkreturn="true"/>
     </target>
 
     <!-- PHP CodeSniffer -->
     <target name="phpcs" depends="phpunit">
         <echo msg="PHP CodeSniffer..." />
-        <exec command="phpcs --standard=ZEND --report=checkstyle ${ws}/source > ${builddir}/logs/checkstyle.xml" escape="false"
+        <exec command="phpcs --standard=ZEND --report=checkstyle ${ws}/ > ${builddir}/logs/checkstyle.xml" escape="false"
               checkreturn="true" />
     </target>
 
@@ -34,7 +33,7 @@
                 sourcecode="yes"
                 defaultpackagename="MHTest"
                 output="HTML:Smarty:PHP">
-            <fileset dir="./app">
+            <fileset dir="${ws}/">
                 <include name="**/*.php" />
             </fileset>
         </phpdoc>
