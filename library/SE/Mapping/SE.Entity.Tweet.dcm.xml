@@ -26,6 +26,8 @@
 
         <field name="date" column="tweet_date" type="datetime" />
 
+        <field name="language" column="tweet_lang" type="string" lelength="4" />
+
         <one-to-many target-entity="SE\Entity\TweetClassification"
                mapped-by="TweetClassification" field="classifications">
             <cascade>

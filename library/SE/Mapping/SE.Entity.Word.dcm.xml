@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : SE.Entity.Word.dcm.xml
+    Created on : 23 February 2011, 00:08
+    Author     : Ben
+    Description:
+        Purpose of the document follows.
+-->
+
+<doctrine-mapping  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns='http://doctrine-project.org/schemas/orm/doctrine-mapping'
+   xsi:schemaLocation='http://doctrine-project.org/schemas/orm/doctrine-mapping ../../../docs/doctrine-mapping.xsd'>
+
+
+    <entity name="SE\Entity\Word" table="classification_set_word">
+
+        <id name="id" type="integer">
+            <generator strategy="AUTO" />
+        </id>
+        <field name="positive" column="classification_set_word_positive" type="decimal" />
+        <field name="negative" column="classification_set_word_negative" type="decimal" />
+        <field name="appearences" column="classification_set_word_appearences" type="integer" />
+        <many-to-one target-entity="SE\Entity\ClassificationSet" field="classificationSet">
+            <join-column name="classification_set_word_set_id" referenced-column-name="tweet_classification_set_id" />
+        </many-to-one>
+    </entity>
+</doctrine-mapping>
