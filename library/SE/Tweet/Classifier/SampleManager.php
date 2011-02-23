@@ -50,6 +50,14 @@ class SampleManager
      */
     protected $sentNegLimit;
 
+    /**
+     * An Array of lambda function executed on a smaple after it has been
+     * classfied. FIFO order applied.
+     *
+     * @var array
+     */
+    protected $postProcesses;
+
 
     /**
      * Initialises an instance of the Sample Manager class.
@@ -75,6 +83,18 @@ class SampleManager
         $this->classifier        = $classifier;
         $this->classificationSet = $classificationSet;
 
+    }
+
+    /**
+     * Add a function to the post processing stack.
+     *
+     * @param functiom $fn Function to carry out on the sample.
+     *
+     * @return void 
+     */
+    public function addPostProcess($fn)
+    {
+        $this->postProcesses[] = $fn;
     }
 
     /**
@@ -114,6 +134,7 @@ class SampleManager
                 if($this->sentPos <= $this->sentPosLimit)
                 {
                     $this->addTweetToClassificationSet($item, $classRes);
+                    $this->postProcessSample($item);
                     $this->sentPos++;
                 }
 
@@ -123,9 +144,9 @@ class SampleManager
                 if($this->sentNeg <= $this->sentNegLimit)
                 {
                     $this->addTweetToClassificationSet($item, $classRes);
+                    $this->postProcessSample($item);
                     $this->sentNeg++;
                 }
-
                 break;
 
             case Classifier::CLASSIFICATION_RESULT_NEUTRAL:
@@ -150,9 +171,28 @@ class SampleManager
 
         $tweet->addClassification($classification);
         $this->classificationSet->addTweet($classification);
-
-        print $classification->getClassificationResult();
+        
         return;
+    }
+
+    /**
+     * Executes all functions in the post process stack on the sample.
+     *
+     * @param Entity\Tweet $tweet
+     *
+     * @return void
+     */
+    private function postProcessSample(Entity\Tweet $tweet)
+    {
+        if(count($this->postProcesses) < 1)
+        {
+            return;
+        }
+
+        foreach($this->postProcesses as $fn)
+        {
+            $fn($tweet);
+        }
     }
 
 }

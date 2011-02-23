@@ -53,6 +53,13 @@ class Tweet implements Classifier\IClassifiable
     */
    protected $classifications;
 
+   /**
+    * Language Of Tweet.
+    *
+    * @var string
+    */
+   protected $language;
+
 
    /**
     * Instantaites an instance of Tweet
@@ -174,6 +181,29 @@ class Tweet implements Classifier\IClassifiable
    {
        $this->tweetId = $tweetId;
    }
+
+   /**
+    * Get the Tweets langauge.
+    *
+    * @return string
+    */
+   public function getLanguage()
+   {
+       return $this->language;
+   }
+
+   /**
+    * Sets the Tweet langauge.
+    *
+    * @param string $language
+    *
+    * @return void
+    */
+   public function setLanguage($language)
+   {
+       $this->language = $language;
+   }
+
 
    /**
     * Tweet Classifications
