@@ -15,12 +15,11 @@
 
     <entity name="SE\Entity\Word" table="classification_set_word">
 
-        <id name="id" type="integer">
-            <generator strategy="AUTO" />
-        </id>
-        <field name="positive" column="classification_set_word_positive" type="decimal" />
-        <field name="negative" column="classification_set_word_negative" type="decimal" />
-        <field name="appearences" column="classification_set_word_appearences" type="integer" />
+        <id name="id" type="string" />
+        <field name="word" column="classification_set_word_word" type="string" />
+        <field name="positive" column="classification_set_word_positive" type="integer" nullable="true" />
+        <field name="negative" column="classification_set_word_negative" type="integer" nullable="true" />
+        <field name="appearences" column="classification_set_word_appearences" type="integer" nullable="true" />
         <many-to-one target-entity="SE\Entity\ClassificationSet" field="classificationSet">
             <join-column name="classification_set_word_set_id" referenced-column-name="tweet_classification_set_id" />
         </many-to-one>

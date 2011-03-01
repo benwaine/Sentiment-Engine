@@ -21,10 +21,17 @@
     
     <field name="type" column="tweet_classification_set_type" type="integer" />
 
-    <field name="date" colum="tweet_classification_set_date" type="datetime" />
+    <field name="date" column="tweet_classification_set_date" type="datetime" />
     
     <one-to-many target-entity="SE\Entity\TweetClassification" 
-        mapped-by="TweetClassification" field="classifiedTweets" />
+        mapped-by="classificationSet" field="classifiedTweets" />
+
+    <one-to-many target-entity="SE\Entity\Word"
+        mapped-by="classificationSet" field="words" >
+             <cascade>
+                <cascade-persist/>
+            </cascade>
+    </one-to-many>
 
 </entity>
 

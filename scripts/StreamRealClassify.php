@@ -34,44 +34,21 @@ $fn = function($data)
             }
         };
 
-$fnRemoveSmiley = function($tweet)
-        {
-            $text = $tweet->getText();
-            $text = str_replace(array(':)', ':(', ':-)', ':-(', ':p', ';)', ';-)', ':@'), '', $text);
-            $tweet->setText($text);
-        };
-
 $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
 $factory->setMethod('POST');
-$factory->addTrack(':)');
-$factory->addTrack(':(');
+$factory->addTrack('Apple');
 
-$streamer = $factory->getStreamIterator($fn);
+$streamer = $factory->getStreamIterator($fn); /* @var $set \SE\Entity\ClassificationSet */
 
-$classificationSet = new SE\Entity\ClassificationSet();
-$classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
-$classificationSet->setDate(new DateTime());
+$set = $em->find('SE\Entity\ClassificationSet', 1);
 
-$manager = new SE\Tweet\Classifier\SampleManager(new SE\Tweet\Classifier\Smiley(), $classificationSet, 50, 50);
-$manager->addPostProcess($fnRemoveSmiley);
-$em->persist($classificationSet);
+$classifier = new Classifier\Bayes($em, $set);
 
-foreach ($streamer as $tweet) /* @var $tweet SE\Entity\ClassifiedTweet  */
+foreach ($streamer as $tweet) /* @var $tweet \SE\Entity\ClassifiedTweet  */
 {
     if ($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
     {
-        if ($tweet->getLanguage() != 'en')
-        {
-            continue;
-        }
-        echo $tweet->getText() . "\n";
-        $em->persist($tweet);
-        $manager->addToSample($tweet);
-        if ($manager->isComplete())
-        {
-            $em->flush();
-            break;
-        }
+        $classifier->classify($tweet);
     }
 }
