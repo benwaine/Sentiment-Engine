@@ -50,6 +50,12 @@ class ClassificationSet
      * @var DateTime
      */
     protected $date;
+    /**
+     * Words in the classification set.
+     *
+     * @var Common\ArrayCollection
+     */
+    protected $words;
 
     /**
      * Initialises an instance of CLassification Set.
@@ -90,7 +96,7 @@ class ClassificationSet
      */
     public function getTweets()
     {
-        return $this->tweets;
+        return $this->classifiedTweets;
     }
 
     /**
@@ -146,6 +152,80 @@ class ClassificationSet
     public function setDate($date)
     {
         $this->date = $date;
+    }
+
+    /**
+     * Adds a word to a classification set.
+     *
+     * @param Word $word
+     *
+     * @return void
+     */
+    public function addWord($word)
+    {
+        $word->setClassificationSet($this);
+        $this->words[] = $word;
+    }
+
+    /**
+     * Get words.
+     *
+     * @return Collection\Array
+     */
+    public function getWords()
+    {
+        return $this->words;
+    }
+
+    /**
+     * Gets the probability of a word apearing in a positive tweet from sample.
+     *
+     * @param string $word Word to classify
+     *
+     * @return double
+     */
+    public function probabilityOfPositive($word)
+    {
+        $words = $this->getWords()->toArray();
+        $allWords = count($words);
+
+        $key = md5($this->getId() . $word);
+
+        if (isset($words[$key]))
+        {
+            $prob = $sword->getPositive() / $allWords;
+            return $prob;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    /**
+     * Gets the probability of a word apearing in a positive tweet from sample.
+     *
+     * @param string $word Word to Classify
+     *
+     * @return double
+     */
+    public function probabilityOfNegative($word)
+    {
+        $words = $this->getWords();
+        $allWords = count($words);
+        $key = md5($this->getId() . $word);
+
+        if (isset($words[$key]))
+        {
+            $prob = $sword->getNegative() / $allWords;
+            return $prob;
+        }
+        else
+        {
+            return 0;
+        }
+
+        return $prob;
     }
 
 }

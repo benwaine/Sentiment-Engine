@@ -224,8 +224,6 @@ class Tweet implements Classifier\IClassifiable
    {
         $this->classifications[] = $classification;
    }
-
-
-
+   
 }
 

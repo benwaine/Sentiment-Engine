@@ -1,5 +1,6 @@
 <?php
 namespace SE\Entity;
+use SE\Tweet\Classifier;
 /**
  * Represents a word in a Classifier.
  *
@@ -15,6 +16,13 @@ class Word
      * @var integer
      */
     protected $id;
+
+    /**
+     * The word.
+     *
+     * @var string
+     */
+    protected $word;
 
     /**
      * Probability: Word is in positive samples.
@@ -68,6 +76,29 @@ class Word
     }
 
     /**
+     * Get the word.
+     *
+     * @return string
+     */
+    public function getWord()
+    {
+        return $this->word;
+    }
+
+    /**
+     * Set the word.
+     *
+     * @param string $word Tweet word.
+     *
+     * @return void
+     */
+    public function setWord($word)
+    {
+        $this->word = $word;
+    }
+
+
+    /**
      * Set probability word appears in positive samples.
      *
      * @return double
@@ -87,6 +118,16 @@ class Word
     public function setPositive($positive)
     {
         $this->positive = $positive;
+    }
+
+    /**
+     * Adds a positive appearence.
+     *
+     * @return void
+     */
+    public function addPositiveAppearence()
+    {
+        $this->positive++;
     }
 
     /**
@@ -112,6 +153,16 @@ class Word
     }
 
     /**
+     * Adds a negative appearence.
+     *
+     * @return void
+     */
+    protected function addNegativeAppearence()
+    {
+        $this->negative++;
+    }
+
+    /**
      * Get total appearences for this word in sample.
      *
      * @return integer
@@ -131,6 +182,25 @@ class Word
     public function setAppearences($appearences)
     {
         $this->appearences = $appearences;
+    }
+
+    /**
+     * Increments the word appearence count.
+     *
+     * @return void
+     */
+    public function addAppearence($sentiment)
+    {
+        if($sentiment == Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE)
+        {
+            $this->addPositiveAppearence();
+        }
+        elseif($sentiment == Classifier\Classifier::CLASSIFICATION_RESULT_NEGATIVE)
+        {
+            $this->addNegativeAppearence();
+        }
+
+        $this->appearences++;
     }
 
     /**

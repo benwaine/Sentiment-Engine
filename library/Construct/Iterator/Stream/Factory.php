@@ -133,6 +133,11 @@ class Factory
 
         $stream = fopen($authURL, 'r', false, $context);
 
+        if(!$stream)
+        {
+            throw new \RuntimeException('Unable to open stream');
+        }
+        
         return $stream;
     }
 
