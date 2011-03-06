@@ -34,6 +34,31 @@ $fn = function($data)
             }
         };
 
+$fnCleanTweet = function($tweet)
+{
+    $text = $tweet->getText();
+    $words = explode(' ', $text);
+
+    foreach($words as $key => &$word)
+    {
+        if(strpos($word, '@') === 0)
+        {
+            unset($words[$key]);
+        }
+        elseif($word == ' ')
+        {
+            unset($words[$key]);
+        }
+        else
+        {
+            $word = str_replace(array(': ', ', ', '; ', '.', "\'", 'RT', '!', "\""), '', $word);
+            $word = mb_strtolower($word, 'UTF8');
+        }
+    }
+    $tweet->setText(implode(' ', $words));
+    echo $tweet->getText() . "\n";
+};
+
 $fnRemoveSmiley = function($tweet)
         {
             $text = $tweet->getText();
@@ -44,8 +69,8 @@ $fnRemoveSmiley = function($tweet)
 $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
 $factory->setMethod('POST');
-$factory->addTrack(':)');
-$factory->addTrack(':(');
+$factory->addTrack('Bieber :)');
+$factory->addTrack('Bieber :(');
 
 $streamer = $factory->getStreamIterator($fn);
 
@@ -53,7 +78,8 @@ $classificationSet = new SE\Entity\ClassificationSet();
 $classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
 $classificationSet->setDate(new DateTime());
 
-$manager = new SE\Tweet\Classifier\SampleManager(new SE\Tweet\Classifier\Smiley(), $classificationSet, 50, 50);
+$manager = new SE\Tweet\Classifier\SampleManager(new SE\Tweet\Classifier\Smiley(), $classificationSet, 2000, 2000);
+$manager->addPreProcess($fnCleanTweet);
 $manager->addPostProcess($fnRemoveSmiley);
 $em->persist($classificationSet);
 
@@ -65,7 +91,7 @@ foreach ($streamer as $tweet) /* @var $tweet SE\Entity\ClassifiedTweet  */
         {
             continue;
         }
-        echo $tweet->getText() . "\n";
+        //echo $tweet->getText() . "\n";
         $em->persist($tweet);
         $manager->addToSample($tweet);
         if ($manager->isComplete())

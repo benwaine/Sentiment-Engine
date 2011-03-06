@@ -51,12 +51,20 @@ class SampleManager
     protected $sentNegLimit;
 
     /**
-     * An Array of lambda function executed on a smaple after it has been
+     * An Array of lambda function executed on a sample after it has been
      * classfied. FIFO order applied.
      *
      * @var array
      */
     protected $postProcesses;
+
+    /**
+     * An array of lambda functions executed on a sample before it is classified.
+     * FIFO order is applied.
+     *
+     * @var array
+     */
+    protected $preProcesses;
 
 
     /**
@@ -83,6 +91,16 @@ class SampleManager
         $this->classifier        = $classifier;
         $this->classificationSet = $classificationSet;
 
+    }
+
+    /**
+     * Add a function tp the pre processing stack.
+     *
+     * @param function $fn Function to execute on sample.
+     */
+    public function addPreProcess($fn)
+    {
+        $this->preProcesses[] = $fn;
     }
 
     /**
@@ -125,8 +143,10 @@ class SampleManager
      */
     public function addToSample(IClassifiable $item)
     {
+        $this->preProcessSample($item);
+
         $classRes = $this->classifier->classify($item);
-        //print $classRes;
+       
         switch($classRes)
         {
             case Classifier::CLASSIFICATION_RESULT_POSITIVE:
@@ -173,6 +193,24 @@ class SampleManager
         $this->classificationSet->addTweet($classification);
         
         return;
+    }
+
+    /**
+     * Executes all function in the pre process stack on the sample.
+     *
+     * @return void
+     */
+    private function preProcessSample($tweet)
+    {
+        if(count($this->preProcesses) < 1)
+        {
+            return;
+        }
+
+        foreach($this->preProcesses as $fn)
+        {
+            $fn($tweet);
+        }
     }
 
     /**

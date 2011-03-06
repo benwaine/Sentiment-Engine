@@ -1,7 +1,9 @@
 <?php
 namespace SE\Tweet\Classifier;
+
 use SE\Entity;
 use Doctrine\ORM;
+
 /**
  * Classifies a tweet based on Bayes formular.
  *
@@ -18,7 +20,6 @@ class Bayes extends Classifier
      * @var EntityManager
      */
     private $entityManager;
-
     /**
      * The classification set to use to base the bayes classification on.
      *
@@ -35,7 +36,7 @@ class Bayes extends Classifier
      */
     public function __construct(ORM\EntityManager $entityManager, Entity\ClassificationSet $classificationSet)
     {
-        $this->entityManager     = $entityManager;
+        $this->entityManager = $entityManager;
         $this->classificationSet = $classificationSet;
     }
 
@@ -48,15 +49,39 @@ class Bayes extends Classifier
      */
     public function classify(IClassifiable $tweet)
     {
+        $this->cleanTweet($tweet);
+
         $text = $tweet->getText();
         $words = explode(' ', $text);
 
-        foreach($words as $word)
+        $wordProbsPos = array();
+        $wordProbsNeg = array();
+
+        foreach ($words as $word)
         {
             $probs = $this->wordProbability($word);
-
-            var_dump($probs);
+            $wordProbsPos[$word] = $probs['p'];
+            $wordProbsNeg[$word] = $probs['n'];
         }
+
+        var_dump($wordProbsPos);
+        var_dump($wordProbsNeg);
+        die;
+    }
+
+    private function cleanTweet(Entity\Tweet $tweet)
+    {
+        $text = $tweet->getText();
+
+        $words = \explode(' ', $text);
+
+        foreach($words as &$word)
+        {
+            $word = str_replace(array(': ', ', ', '; ', '.', "\'", 'RT', '!', '\"'), '', $word);
+            $word = mb_strtolower($word, 'UTF8');
+        }
+
+        $tweet->setText(implode(' ', $words));
     }
 
     /**
@@ -69,25 +94,28 @@ class Bayes extends Classifier
      */
     private function wordProbability($word)
     {
-        $id = md5($this->classificationSet->getId() . $word);
-
         $query = $this->entityManager->createQuery(
-                'SELECT count(w.id) FROM SE\Entity\Word w');
+                        'SELECT count(w.id) FROM SE\Entity\Word w');
 
         $wordCount = $query->getSingleScalarResult();
 
-        $wordOb = $this->entityManager->find('SE\Entity\Word', $id);
+        $query = $this->entityManager->createQuery('SELECT w FROM SE\Entity\Word w WHERE w.word = ?1 AND w.classificationSet = ?2');
+        $query->setParameter(1, $word);
+        $query->setParameter(2, $this->classificationSet->getID());
+        $results = $query->getResult();
 
-        if(!is_null($wordOb))
+        if(is_array($results))
         {
-            return array('p' => $wordOb->getPositive() / $wordCount, 'n' => $wordOb->getNegative() / $wordCount);
+            if(array_key_exists(0, $results))
+            {
+                $wordOb = $results[0];
+                return array('p' => $wordOb->getPositive() / $wordCount, 'n' => $wordOb->getNegative() / $wordCount);
+            }
+            else
+            {
+                return array('p' => 0, 'n' => 0);
+            }
         }
-        else
-        {
-            return array('p' => 0, 'n' => 0);
-        }
-
-        
     }
 
 }

@@ -27,7 +27,7 @@
         mapped-by="classificationSet" field="classifiedTweets" />
 
     <one-to-many target-entity="SE\Entity\Word"
-        mapped-by="classificationSet" field="words" >
+        mapped-by="classificationSet" field="words">
              <cascade>
                 <cascade-persist/>
             </cascade>

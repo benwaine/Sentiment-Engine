@@ -37,11 +37,11 @@ $fn = function($data)
 $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
 $factory->setMethod('POST');
-$factory->addTrack('Apple');
+$factory->addLocationBox(array(-122.75, 36.8, -121.75, 37.8));
 
 $streamer = $factory->getStreamIterator($fn); /* @var $set \SE\Entity\ClassificationSet */
 
-$set = $em->find('SE\Entity\ClassificationSet', 1);
+$set = $em->find('SE\Entity\ClassificationSet', 2);
 
 $classifier = new Classifier\Bayes($em, $set);
 
@@ -49,6 +49,10 @@ foreach ($streamer as $tweet) /* @var $tweet \SE\Entity\ClassifiedTweet  */
 {
     if ($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
     {
+        if ($tweet->getLanguage() != 'en')
+        {
+            continue;
+        }
         $classifier->classify($tweet);
     }
 }
