@@ -63,7 +63,7 @@ class Twitterator extends Stream\Factory
 
             $data .= 'locations=';
 
-            $data .= implode(',', $this->locationParams);
+            $data .= $this->locationParams;
         }
 
         $this->data = $data;
@@ -96,14 +96,14 @@ class Twitterator extends Stream\Factory
      *
      * @return void
      */
-    public function addLocationBox($swLon, $swLat, $neLon, $neLat)
+    public function addLocationBox(array $box)
     {
-        if(count($this->locationParams >= 25))
+        if(count($this->locationParams) >= 25)
         {
             throw new \InvalidArgumentException('Only 25 bounding boxes are permitted');
         }
-
-        $this->locationParams = implode(',', \func_get_args());
+        $this->locationParams = implode(',', $box);
+        var_dump($this->locationParams);
     }
 
     /**
