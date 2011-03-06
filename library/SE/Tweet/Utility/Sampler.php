@@ -87,7 +87,7 @@ class Sampler
         $pagesRequired  = $this->pageNumber();
 
         $positiveTweets = $this->executeSampleGathering(self::HAPPY_SAMPLE, $pagesRequired);
-        
+        sleep(10);
         $negativeTweets = $this->executeSampleGathering(self::SAD_SAMPLE, $pagesRequired);
 
         return array('p' => $positiveTweets, 'n' => $negativeTweets);
@@ -113,8 +113,10 @@ class Sampler
 
         for ($x = 1; $x <= $pages; $x++)
         {
+            echo $x;
             $tweets = $this->sendRequest($searchString, $x);
-            $sample = $sample + $tweets;
+            $sample = array_merge($sample, $tweets);
+            sleep(2);
         }
 
         return $sample;
@@ -132,14 +134,19 @@ class Sampler
         try
         {
             $tweets = $this->handleResponse($response);
-
             return $tweets;
         }
         catch (Exception\TooManyApiRequests $e)
         {
             // Back off the number of seconds indicated then resend the request
             sleep($e->getSeconds());
-
+            return $this->sendRequest($searchString, $page);
+        }
+        catch(Exception\APIGoneAway $e)
+        {
+            // Back off for a few seconds and retry.
+            echo "  502 recived  ";
+            sleep(3);
             return $this->sendRequest($searchString, $page);
         }
     }
@@ -155,7 +162,6 @@ class Sampler
     {
         if ($response->getStatus() != 200)
         {
-
             switch ($response->getStatus())
             {
                 case 420:
@@ -165,6 +171,9 @@ class Sampler
                     $e = new Exception\TooManyApiRequests('Too many API requests');
                     $e->setSeconds($retry);
                     throw $e;
+                    break;
+                case 502:
+                    throw new Exception\APIGoneAway('Twitter responded with a 502');
                     break;
                 default:
                     // Fail!
@@ -213,7 +222,7 @@ class Sampler
         $params['lang'] = 'lang=en';
 
         //Result type - recent rather than popular
-        $params['result_type'] = 'result_type=recent';
+        //$params['result_type'] = 'result_type=recent';
 
         // Page - variable
         $params['page'] = "page=<PAGE_REP>";

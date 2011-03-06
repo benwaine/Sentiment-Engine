@@ -94,14 +94,12 @@ class Bayes extends Classifier
      */
     private function wordProbability($word)
     {
-        $query = $this->entityManager->createQuery(
-                        'SELECT count(w.id) FROM SE\Entity\Word w');
 
-        $wordCount = $query->getSingleScalarResult();
 
         $query = $this->entityManager->createQuery('SELECT w FROM SE\Entity\Word w WHERE w.word = ?1 AND w.classificationSet = ?2');
         $query->setParameter(1, $word);
         $query->setParameter(2, $this->classificationSet->getID());
+
         $results = $query->getResult();
 
         if(is_array($results))
@@ -109,7 +107,8 @@ class Bayes extends Classifier
             if(array_key_exists(0, $results))
             {
                 $wordOb = $results[0];
-                return array('p' => $wordOb->getPositive() / $wordCount, 'n' => $wordOb->getNegative() / $wordCount);
+                return array('p' => $wordOb->getPositive() / $this->classificationSet->getPositiveSampleSize(),
+                             'n' => $wordOb->getNegative() / $this->classificationSet->getNegativeSampleSize());
             }
             else
             {
