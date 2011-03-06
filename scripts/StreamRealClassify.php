@@ -37,11 +37,11 @@ $fn = function($data)
 $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
 $factory->setMethod('POST');
-$factory->addLocationBox(array(-122.75, 36.8, -121.75, 37.8));
+$factory->addTrack('birthday');
 
 $streamer = $factory->getStreamIterator($fn); /* @var $set \SE\Entity\ClassificationSet */
 
-$set = $em->find('SE\Entity\ClassificationSet', 2);
+$set = $em->find('SE\Entity\ClassificationSet', 1);
 
 $classifier = new Classifier\Bayes($em, $set);
 
@@ -53,6 +53,7 @@ foreach ($streamer as $tweet) /* @var $tweet \SE\Entity\ClassifiedTweet  */
         {
             continue;
         }
+
         $classifier->classify($tweet);
     }
 }

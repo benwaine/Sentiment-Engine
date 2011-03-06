@@ -29,12 +29,22 @@ foreach ($set->getTweets() as $classification)
     $text   = $tweet->getText();
     $wordAr = explode(' ', $text);
 
+    $wordsInTweet = array();
+
     // Explode the words in a tweet and check for the presence of the word in the set using a DQL query.
     foreach ($wordAr as $word)
     {
+
+        if($word == " " || $word == "" || in_array($word, $wordsInTweet))
+        {
+            // Words are only counted once. A double space is not a word
+            continue;
+        }
+
+        $wordsInTweet[] = $word;
+
         $wordAr = $wordStorage->getWord($set->getId(), $word);
-//        var_dump($wordAr);
-//        die;
+
         if(is_null($wordAr) || !$wordAr)
         {
             echo 'N ';

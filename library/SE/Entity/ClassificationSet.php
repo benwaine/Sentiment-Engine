@@ -58,6 +58,13 @@ class ClassificationSet
     protected $words;
 
     /**
+     * Sample Size
+     *
+     * @var integer
+     */
+    protected $sampleSize;
+
+    /**
      * Initialises an instance of CLassification Set.
      *
      * @return void
@@ -178,54 +185,48 @@ class ClassificationSet
     }
 
     /**
-     * Gets the probability of a word apearing in a positive tweet from sample.
+     * Sets the sample size of the classification set.
      *
-     * @param string $word Word to classify
-     *
-     * @return double
+     * @return integer
      */
-    public function probabilityOfPositive($word)
+    public function getSampleSize()
     {
-        $words = $this->getWords()->toArray();
-        $allWords = count($words);
-
-        $key = md5($this->getId() . $word);
-
-        if (isset($words[$key]))
-        {
-            $prob = $sword->getPositive() / $allWords;
-            return $prob;
-        }
-        else
-        {
-            return 0;
-        }
+        return $this->sampleSize;
     }
 
     /**
-     * Gets the probability of a word apearing in a positive tweet from sample.
+     * Sets the sample size of the classification set.
      *
-     * @param string $word Word to Classify
+     * @param integer $sampleSize
      *
-     * @return double
+     * @return void
      */
-    public function probabilityOfNegative($word)
+    public function setSampleSize($sampleSize)
     {
-        $words = $this->getWords();
-        $allWords = count($words);
-        $key = md5($this->getId() . $word);
-
-        if (isset($words[$key]))
-        {
-            $prob = $sword->getNegative() / $allWords;
-            return $prob;
-        }
-        else
-        {
-            return 0;
-        }
-
-        return $prob;
+        $this->sampleSize = $sampleSize;
     }
+
+    /**
+     * Gets the number of positive tweets included in the sample.
+     *
+     * @return integer
+     */
+    public function getPositiveSampleSize()
+    {
+        return $this->getSampleSize() / 2;
+    }
+
+    /**
+     * Gets the number of negative tweets in the sample.
+     *
+     * @return integer
+     */
+    public function getNegativeSampleSize()
+    {
+        return $this->getSampleSize() / 2;
+    }
+
+
+
 
 }

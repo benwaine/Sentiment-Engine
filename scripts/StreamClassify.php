@@ -78,6 +78,9 @@ $classificationSet = new SE\Entity\ClassificationSet();
 $classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
 $classificationSet->setDate(new DateTime());
 
+$classificationSet = new SE\Entity\ClassificationSet();
+$classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
+$classificationSet->setDate(new DateTime());
 $manager = new SE\Tweet\Classifier\SampleManager(new SE\Tweet\Classifier\Smiley(), $classificationSet, 2000, 2000);
 $manager->addPreProcess($fnCleanTweet);
 $manager->addPostProcess($fnRemoveSmiley);

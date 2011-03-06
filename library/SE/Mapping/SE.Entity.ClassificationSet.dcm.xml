@@ -22,6 +22,8 @@
     <field name="type" column="tweet_classification_set_type" type="integer" />
 
     <field name="date" column="tweet_classification_set_date" type="datetime" />
+
+    <field name="sampleSize" column="tweet_classification_set_size" type="integer" />
     
     <one-to-many target-entity="SE\Entity\TweetClassification" 
         mapped-by="classificationSet" field="classifiedTweets" />
