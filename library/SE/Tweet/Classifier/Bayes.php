@@ -64,9 +64,62 @@ class Bayes extends Classifier
             $wordProbsNeg[$word] = $probs['n'];
         }
 
-        var_dump($wordProbsPos);
-        var_dump($wordProbsNeg);
-        die;
+        $sumProbs['p'] = $this->bayes($wordProbsPos);
+        $sumProbs['n'] = $this->bayes($wordProbsNeg);
+
+        var_dump($sumProbs);
+        var_dump($text);
+        
+
+    }
+
+    private function bayes($probArray)
+    {
+        $count = count($probArray);
+        $i = 0;
+        foreach($probArray as $key => $value)
+        {
+            if($i == 0)
+            {
+                $pn = $value;
+            }
+            elseif($value == 0)
+            {
+                continue;
+            }
+            else
+            {
+                $pn = $pn * $value;
+            }
+        
+            $i++;
+        }
+
+        $i = 0;
+
+        foreach($probArray as $key => $value)
+        {
+            if($i == 0)
+            {
+                $ps = 1 - $value;
+            }
+            elseif($value == 0)
+            {
+              continue;
+            }
+            else
+            {
+                $ps = $ps * (1 - $value);
+            }
+
+            $i++;
+        }
+
+        $prob = $pn / ($pn + $ps);
+        
+        return $prob;
+
+      
     }
 
     private function cleanTweet(Entity\Tweet $tweet)
