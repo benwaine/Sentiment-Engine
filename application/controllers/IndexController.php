@@ -17,18 +17,7 @@ class IndexController extends Zend_Controller_Action
     public function init()
     {
         
-        /* Initialize action controller here */
-        $bootstrap         = $this->getInvokeArg('bootstrap');
-        $doctrineContainer = $bootstrap->getResource('doctrine');
-        $entityManager     = $doctrineContainer->getEntityManager();
 
-        $tweet = new SE\Entity\Tweet();
-        $tweet->setTweet('Hello');
-
-        $entityManager->persist($tweet);
-
-        $entityManager->flush();
-        
     }
 
     /**
@@ -40,6 +29,11 @@ class IndexController extends Zend_Controller_Action
     {
         // action body
 
+        
+    }
+
+    public function testAction()
+    {
         
     }
 
