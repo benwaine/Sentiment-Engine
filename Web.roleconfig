@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <system.webServer>
+    <fastCgi>
+      <application fullPath="%RoleRoot%\approot\php\php-cgi.exe" />
+    </fastCgi>
+  </system.webServer>
+</configuration>
