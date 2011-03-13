@@ -15,6 +15,9 @@ class Api_TrackingController extends Controller\Rest
      */
     public function getAction()
     {
+        $pendingItems = $this->container->trackingservice->getPendingTrackingItems();
+
+        var_dump($pendingItems);
     }
 
     /**
@@ -27,6 +30,8 @@ class Api_TrackingController extends Controller\Rest
         try
         {
             $trackingReq = $this->_helper->TrackingRequest($this->_request->getRawBody());
+
+            $this->container->trackingservice->addTrackingItem($trackingReq['content']);
         }
         catch(InvalidArgumentException $e)
         {

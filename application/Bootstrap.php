@@ -1,6 +1,6 @@
 <?php
 use SE\Infrastructure\Tracking\Helper;
-require 'Di/lib/sfServiceContainerAutoloader.php';
+
 /**
  * Bootstraps the application
  *
@@ -30,11 +30,14 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 
     }
 
-    public function _initDI()
+    public function _initEntityManager()
     {
-        $this->bootstrap('AutoloaderNamespaces');
+        $this->bootstrap('doctrine');
+        $doctrine = $this->getResource('doctrine');
 
+        return $doctrine->getEntityManager();
     }
+
 
     public function _initModules()
     {
@@ -72,8 +75,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $apiOptions = $this->getOption('api');
 
         $view->apiEndPoint = $apiOptions['endpoint'];
-
-        
     }
 
     /**

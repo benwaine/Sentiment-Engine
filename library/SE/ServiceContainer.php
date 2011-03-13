@@ -1,4 +1,5 @@
 <?php
+namespace SE\Infrastructure;
 /**
  * The TSE Service Container.
  * Utilises Symfony's dependancy injection container to provide instances of the
@@ -11,6 +12,14 @@
 class ServiceContainer
 {
 
+    public static function getContainer($configOptions)
+    {
+
+        $sc = new \sfServiceContainerBuilder($configOptions);
+
+        
+       
+    }
 
 }
 

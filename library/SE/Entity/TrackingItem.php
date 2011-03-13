@@ -7,7 +7,7 @@ namespace SE\Entity;
  * @subpackage Tracking
  * @author     Ben Waine
  */
-class TrackedItem
+class TrackingItem
 {
     /**
      * Item ID
@@ -118,18 +118,6 @@ class TrackedItem
     public function isTracked()
     {
         return $this->tracking;
-    }
-
-    /**
-     * Sets if the item has been tracked.
-     *
-     * @param bool $tracking
-     *
-     * @return void
-     */
-    public function setTracking($tracking)
-    {
-        $this->tracking = $tracking;
     }
 
     /**

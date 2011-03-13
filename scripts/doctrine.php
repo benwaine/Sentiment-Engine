@@ -1,5 +1,4 @@
 <?php
-
 // Define path to application directory
 defined('APPLICATION_PATH')
     || define('APPLICATION_PATH', realpath(dirname(__FILE__) . '/../application'));
@@ -14,6 +13,13 @@ set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
 )));
 
+// Init The DI container
+require 'Di/lib/sfServiceContainerAutoloader.php';
+sfServiceContainerAutoloader::register();
+$container = new sfServiceContainerBuilder();
+
+$loader = new sfServiceContainerLoaderFileXml($container);
+$loader->load(APPLICATION_PATH.'/configs/services.xml');
 /** Zend_Application */
 require_once 'Zend/Application.php';
 
