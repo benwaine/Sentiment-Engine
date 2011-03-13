@@ -8,6 +8,13 @@ class Rest extends \Zend_Rest_Controller
 {
 
     /**
+     * Dependancy Injecttion Container
+     *
+     * @var sfServiceContainerBuilder
+     */
+    protected $container;
+
+    /**
      * Init Mehtod - Disables layout.
      * 
      * @return void
@@ -16,6 +23,11 @@ class Rest extends \Zend_Rest_Controller
     {
         //$this->_helper->layout->disableLayout();
         $this->_helper->viewRenderer->setNoRender(true);
+
+        $bootstrap = $this->getInvokeArg('bootstrap');
+        $container = $bootstrap->getContainer();
+
+        $this->container = $container;
     }
 
     /**
@@ -90,14 +102,14 @@ class Rest extends \Zend_Rest_Controller
 
     protected function sendAlteredResponse($code, $message = null)
     {
-        if(!is_int($code))
+        if (!is_int($code))
         {
             throw InvalidArgumentException('HTTP Response Code must be an integer value');
         }
 
         $this->_response->setHttpResponseCode($code);
-        
-        if(isset($message))
+
+        if (isset($message))
         {
             $this->_response->setBody($message);
         }

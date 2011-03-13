@@ -13,6 +13,14 @@ set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
 )));
 
+// Init The DI container
+require 'Di/lib/sfServiceContainerAutoloader.php';
+sfServiceContainerAutoloader::register();
+$container = new sfServiceContainerBuilder();
+
+$loader = new sfServiceContainerLoaderFileXml($container);
+$loader->load(APPLICATION_PATH.'/configs/services.xml');
+
 /** Zend_Application */
 require_once 'Zend/Application.php';
 
@@ -21,5 +29,7 @@ $application = new Zend_Application(
     APPLICATION_ENV,
     APPLICATION_PATH . '/configs/application.ini'
 );
-$application->bootstrap()
+
+$application->getBootstrap()->setContainer($container)
+            ->bootstrap()
             ->run();
