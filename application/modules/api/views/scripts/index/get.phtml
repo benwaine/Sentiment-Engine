@@ -1,0 +1,11 @@
+<service
+    xmlns="http://www.w3.org/2007/app"
+    xmlns:atom="http://www.w3.org/2005/Atom" >
+    <workspace>
+        <atom:title>Tracking</atom:title>
+        <collection href="<?php echo $this->apiEndPoint ?>/tracking">
+            <atom:title>Tracked Resources</atom:title>
+            <accept>application/atom+xml</accept>
+        </collection>
+    </workspace>
+</service>

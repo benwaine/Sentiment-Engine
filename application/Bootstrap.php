@@ -1,5 +1,6 @@
 <?php
-
+use SE\Infrastructure\Tracking\Helper;
+require 'Di/lib/sfServiceContainerAutoloader.php';
 /**
  * Bootstraps the application
  *
@@ -14,14 +15,25 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         require_once APPLICATION_PATH . '/../library/Doctrine/Common/ClassLoader.php';
 
         $autoloader = \Zend_Loader_Autoloader::getInstance();
+
         $fmmAutoloader = new \Doctrine\Common\ClassLoader('Bisna');
         $autoloader->pushAutoloader(array($fmmAutoloader, 'loadClass'), 'Bisna');
 
         $appAutoloader = new \Doctrine\Common\ClassLoader('SE');
         $autoloader->pushAutoloader(array($appAutoloader, 'loadClass'), 'SE');
 
-        $appAutoloader = new \Doctrine\Common\ClassLoader('Construct');
-        $autoloader->pushAutoloader(array($appAutoloader, 'loadClass'), 'Construct');
+        $conAutoloader = new \Doctrine\Common\ClassLoader('Construct');
+        $autoloader->pushAutoloader(array($conAutoloader, 'loadClass'), 'Construct');
+
+        $diAutoloader = new \sfServiceContainerAutoloader();
+        $autoloader->pushAutoloader(array($diAutoloader, 'autoload'));
+
+    }
+
+    public function _initDI()
+    {
+        $this->bootstrap('AutoloaderNamespaces');
+
     }
 
     public function _initModules()
@@ -44,10 +56,39 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     {
         $this->bootstrap('FrontController');
         $front = $this->getResource('FrontController');
-
         $restRoute = new Zend_Rest_Route($front, array(), array('api'));
-
         $front->getRouter()->addRoute('rest', $restRoute);
+    }
+
+    /**
+     * Initialises the options required to use the API.
+     *
+     * @return void
+     */
+    public function _initAPI()
+    {
+        $this->bootstrap('view');
+        $view = $this->getResource('view');
+        $apiOptions = $this->getOption('api');
+
+        $view->apiEndPoint = $apiOptions['endpoint'];
+
+        
+    }
+
+    /**
+     * Init the Action helpers utilized by the API to process and serve
+     * requests.
+     *
+     * @return void
+     */
+    public function _initApiHelpers()
+    {
+        $this->bootstrap('AutoloaderNamespaces');
+
+        $trackingParser = new Helper\TrackingRequest;
+
+        \Zend_Controller_Action_HelperBroker::addHelper($trackingParser);
     }
 
 }
