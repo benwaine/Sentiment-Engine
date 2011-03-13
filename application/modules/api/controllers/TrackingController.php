@@ -15,7 +15,23 @@ class Api_TrackingController extends Controller\Rest
      */
     public function getAction()
     {
-        echo "GET";
+    }
+
+    /**
+     * Handels a tracking request.
+     *
+     * @return void
+     */
+    public function postAction()
+    {
+        try
+        {
+            $trackingReq = $this->_helper->TrackingRequest($this->_request->getRawBody());
+        }
+        catch(InvalidArgumentException $e)
+        {
+            $this->sendAlteredResponse(400, $e->getMessage());
+        }
     }
 
 }

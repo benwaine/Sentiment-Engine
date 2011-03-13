@@ -1,10 +1,12 @@
 <?php
 namespace Construct\Controller;
+
 /**
  * An extension of the Zend_Rest_Controller
  */
 class Rest extends \Zend_Rest_Controller
 {
+
     /**
      * Init Mehtod - Disables layout.
      * 
@@ -83,6 +85,23 @@ class Rest extends \Zend_Rest_Controller
     {
         $this->_response->setHttpResponseCode(405);
         $this->_response->setBody('METHOD NOT IMPLEMENTED');
+        $this->_response->sendResponse();
+    }
+
+    protected function sendAlteredResponse($code, $message = null)
+    {
+        if(!is_int($code))
+        {
+            throw InvalidArgumentException('HTTP Response Code must be an integer value');
+        }
+
+        $this->_response->setHttpResponseCode($code);
+        
+        if(isset($message))
+        {
+            $this->_response->setBody($message);
+        }
+
         $this->_response->sendResponse();
     }
 

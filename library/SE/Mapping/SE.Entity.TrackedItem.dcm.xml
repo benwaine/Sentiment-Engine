@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : SE.Entity.TrackedItem.dcm.xml
+    Created on : 12 March 2011, 13:15
+    Author     : Ben
+    Description:
+        Purpose of the document follows.
+-->
+
+<doctrine-mapping  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns='http://doctrine-project.org/schemas/orm/doctrine-mapping'
+   xsi:schemaLocation='http://doctrine-project.org/schemas/orm/doctrine-mapping ../../../docs/doctrine-mapping.xsd'>
+
+    <entity name="SE\Entity\TrackedItem" table="tracked_item">
+
+        <id name="id" type="integer" column="trackeditem_id">
+            <generator strategy="AUTO" />
+        </id>
+        <field name="requestDate" column="trackeditem_requestdate" type="date" nullable="false" />
+        <field name="trackingDate" column="trackeditem_trackingdate" type="date" nullable="true" />
+        <field name="updated" column="trackeditem_updateddate" type="date" nullable="false" />
+        <field name="term" column="trackeditem_term" type="string" length="400" nullable="false" />
+     </entity>
+
+</doctrine-mapping>

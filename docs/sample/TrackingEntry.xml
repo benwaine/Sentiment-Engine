@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entry xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app">
+    <title>Tracking Request</title>
+    <id>http://sentiment-engine.com/i</id>
+    <updated>2011-03-12T12:00:00Z</updated>
+    <author>
+        <name>Ben Waine</name>
+    </author>
+    <content type="application/vnd.tse+xml">
+        <trackingrequest>
+            <term>Boom</term>
+        </trackingrequest>
+    </content>
