@@ -117,7 +117,7 @@ class TrackingItem
      */
     public function isTracked()
     {
-        return $this->tracking;
+        return is_null($this->getTrackingDate());
     }
 
     /**

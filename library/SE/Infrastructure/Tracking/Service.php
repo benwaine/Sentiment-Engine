@@ -1,7 +1,9 @@
 <?php
 namespace SE\Infrastructure\Tracking;
+
 use SE\Entity;
 use Doctrine\ORM;
+
 /**
  * Tracking Service - Manages the tracking of terms
  *
@@ -11,6 +13,7 @@ use Doctrine\ORM;
  */
 class Service
 {
+
     /**
      * Doctrine 2 Entity Manager
      *
@@ -30,6 +33,15 @@ class Service
         $this->entityManager = $em;
     }
 
+    public function getTrackingItems($start, $offset, $order)
+    {
+        $items = $this->entityManager
+                        ->getRepository('SE\Entity\TrackingItem')
+                        ->getPagedTracingItems($start, $offset, $order);
+
+        return $items;
+    }
+
     /**
      * Adds a tracking item to the database.
      *
@@ -37,14 +49,13 @@ class Service
      */
     public function addTrackingItem($values)
     {
-       $trackingReq = new Entity\TrackedItem();
-       $trackingReq->setRequestDate(new \DateTime());
-       $trackingReq->setTerm($values['tracking_request']);
-       $trackingReq->setTracking(false);
-       $trackingReq->setUpdated(new \DateTime());
+        $trackingReq = new Entity\TrackingItem();
+        $trackingReq->setRequestDate(new \DateTime());
+        $trackingReq->setTerm($values['tracking_request']);
+        $trackingReq->setUpdated(new \DateTime());
 
-       $this->entityManager->persist($trackingReq);
-       $this->entityManager->flush();
+        $this->entityManager->persist($trackingReq);
+        $this->entityManager->flush();
     }
 
     /**
@@ -54,11 +65,12 @@ class Service
      */
     public function getPendingTrackingItems()
     {
-        $query = $this->entityManager->createQuery("SELECT t FROM SE\Entity\TrackedItem t WHERE t.trackingDate IS NULL ");
+        $nontracked = $this->entityManager
+                        ->getRepository('SE\Entity\TrackingItem')
+                        ->getNonTrackedItems();
 
-        $query->execute();
-
-        return $query->getResult();
+        return $nontracked;
     }
+
 }
 

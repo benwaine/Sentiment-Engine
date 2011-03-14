@@ -11,13 +11,21 @@ use Construct\Controller;
 class Api_TrackingController extends Controller\Rest
 {
     /**
-     * Get Tracking
+     * Get Tracking List
+     *
+     * @return void
      */
     public function getAction()
-    {
-        $pendingItems = $this->container->trackingservice->getPendingTrackingItems();
+    {  
+        $start   = $this->_request->getParam('start', 1);
+        $perPage = $this->_request->getParam('offset', 10);
+        $sort    = SE\Entity\Repository\TrackingItemRepository::DATE_ORDER;
 
-        var_dump($pendingItems);
+        $items = $this->container->trackingservice->getTrackingItems($start, $perPage, $sort);
+
+        $this->view->items = $items;
+
+        $this->render('get');
     }
 
     /**
@@ -30,7 +38,6 @@ class Api_TrackingController extends Controller\Rest
         try
         {
             $trackingReq = $this->_helper->TrackingRequest($this->_request->getRawBody());
-
             $this->container->trackingservice->addTrackingItem($trackingReq['content']);
         }
         catch(InvalidArgumentException $e)
