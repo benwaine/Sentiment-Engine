@@ -12,9 +12,9 @@
    xmlns='http://doctrine-project.org/schemas/orm/doctrine-mapping'
    xsi:schemaLocation='http://doctrine-project.org/schemas/orm/doctrine-mapping ../../../docs/doctrine-mapping.xsd'>
 
-    <entity name="SE\Entity\TrackingItem" table="tracking_item">
+    <entity name="SE\Entity\TrackingItem" table="tracking_item" repository-class="SE\Entity\Repository\TrackingItemRepository">
 
-        <id name="id" type="integer" column="trackeditem_id">
+        <id name="id" type="integer" column="trackingitem_id">
             <generator strategy="AUTO" />
         </id>
         <field name="requestDate" column="trackingitem_requestdate" type="date" nullable="false" />
