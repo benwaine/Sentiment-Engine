@@ -65,6 +65,13 @@ class ClassificationSet
     protected $sampleSize;
 
     /**
+     * The term the Set Relates to.
+     *
+     * @var SE\Entity\TrackingItem
+     */
+    protected $term;
+
+    /**
      * Initialises an instance of CLassification Set.
      *
      * @return void
@@ -225,6 +232,30 @@ class ClassificationSet
     {
         return $this->getSampleSize() / 2;
     }
+
+    /**
+     * Get the term the tracking set relates to.
+     *
+     * @return SE\Entity\TrackingItem
+     */
+    public function getTerm()
+    {
+        return $this->term;
+    }
+
+    /**
+     * Set the term the tracking set relates to.
+     *
+     * @param SE\TrackingItem $term
+     *
+     * @return void
+     */
+    public function setTerm($term)
+    {
+        $this->term = $term;
+    }
+
+
 
 
 

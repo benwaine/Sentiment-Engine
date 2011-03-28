@@ -1,12 +1,12 @@
 <?php $now = new DateTime(); ?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app">
     <title><?php echo $this->title ?></title>
-    <link rel="self" href="<?php echo $this->selfLink ?>" />
+    <link rel="self" href="<?php echo $this->apiEndPoint ?>/tracking" />
     <updated><?php echo $now->format('Y-m-d\TH:i:s\Z')  ?></updated>
-    <generator uri="<?php echo $this->selfLink ?>">
-       <?php echo $this->title ?>
+    <generator uri="<?php echo $this->apiEndPoint ?>/tracking">
+        <?php echo $this->title ?>
     </generator>
-    <id><?php echo $this->selfLink ?></id>
+    <id><?php echo $this->apiEndPoint ?>/tracking</id>
 
     <?php
     if (isset($this->items)):
@@ -32,14 +32,18 @@
                 </content>
 
         <?php
-            if (!$item->isTracked()):
+            if (!$item->isBeingFulFilled() && !$item->isTracked()):
         ?>
-                <app:control>        
+                <app:control>
                     <app:draft>yes</app:draft>
                 </app:control>
         <?php
             endif;
         ?>
+
+            <link rel="edit" href="<?php echo $this->apiEndPoint .'/tracking-fulfillment/id/'. $item->getId() ?>" />
+            <link rel="self" href="<?php echo $this->apiEndPoint .'/tracking-fulfillment/id/'. $item->getId() ?>" />
+
             </entry>
 
     <?php

@@ -1,0 +1,28 @@
+<entry xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app">
+    <title>Fulfillment Request</title>
+
+    <id>http://sentiment-engine.dev/api/tracking-fulfillment/id/1</id>
+
+    <updated>2011-03-19T12:29:20Z</updated>
+
+    <app:edited>2011-03-19T12:29:20Z</app:edited>
+
+    <author>
+        <name>User</name>
+    </author>
+
+    <content type="application/vnd.tse+xml">
+        <trackingrequest>
+            <id>1</id>
+            <term>Boom</term>
+        </trackingrequest>
+    </content>
+
+    <app:control>
+        <app:draft>yes</app:draft>
+    </app:control>
+
+    <link rel="edit" href="http://sentiment-engine.dev/api/tracking-fulfillment/id/1" />
+    <link rel="self" href="http://sentiment-engine.dev/api/tracking-fulfillment/id/1" />
+
+</entry>

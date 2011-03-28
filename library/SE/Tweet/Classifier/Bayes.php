@@ -57,8 +57,20 @@ class Bayes extends Classifier
         $wordProbsPos = array();
         $wordProbsNeg = array();
 
-        foreach ($words as $word)
+        $wordPresent = array();
+
+        foreach ($words as $key => $word)
         {
+            // Double words disguarded
+            if (in_array($word, $wordPresent))
+            {
+                unset($words[$key]);
+            }
+            else
+            {
+                $wordPresent[] = $word;
+            }
+
             $probs = $this->wordProbability($word);
             $wordProbsPos[$word] = $probs['p'];
             $wordProbsNeg[$word] = $probs['n'];
@@ -67,45 +79,57 @@ class Bayes extends Classifier
         $sumProbs['p'] = $this->bayes($wordProbsPos);
         $sumProbs['n'] = $this->bayes($wordProbsNeg);
 
-        var_dump($sumProbs);
-        var_dump($text);
-        
-
+        return $sumProbs;
     }
 
     private function bayes($probArray)
     {
         $count = count($probArray);
         $i = 0;
-        foreach($probArray as $key => $value)
+        $wordPresent = array();
+
+        // Clean The Array
+        foreach ($probArray as $k => $v)
         {
-            if($i == 0)
+            // 0 values disguarded
+            if ($v == 0)
+            {
+                unset($probArray[$k]);
+            }
+
+            // Double words disguarded
+            if (in_array($k, $wordPresent))
+            {
+                unset($probArray[$k]);
+            }
+            else
+            {
+                $wordPresent[] = $k;
+            }
+        }
+
+        $i = 0;
+
+        foreach ($probArray as $key => $value)
+        {
+            if ($i == 0)
             {
                 $pn = $value;
-            }
-            elseif($value == 0)
-            {
-                continue;
             }
             else
             {
                 $pn = $pn * $value;
             }
-        
+
             $i++;
         }
 
         $i = 0;
-
-        foreach($probArray as $key => $value)
+        foreach ($probArray as $key => $value)
         {
-            if($i == 0)
+            if ($i == 0)
             {
                 $ps = 1 - $value;
-            }
-            elseif($value == 0)
-            {
-              continue;
             }
             else
             {
@@ -115,11 +139,15 @@ class Bayes extends Classifier
             $i++;
         }
 
-        $prob = $pn / ($pn + $ps);
-        
-        return $prob;
-
-      
+        if (isset($pn) && isset($ps))
+        {
+            $prob = $pn / ($pn + $ps);
+            return $prob;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private function cleanTweet(Entity\Tweet $tweet)
@@ -128,7 +156,7 @@ class Bayes extends Classifier
 
         $words = \explode(' ', $text);
 
-        foreach($words as &$word)
+        foreach ($words as &$word)
         {
             $word = str_replace(array(': ', ', ', '; ', '.', "\'", 'RT', '!', '\"'), '', $word);
             $word = mb_strtolower($word, 'UTF8');
@@ -147,21 +175,30 @@ class Bayes extends Classifier
      */
     private function wordProbability($word)
     {
-
-
         $query = $this->entityManager->createQuery('SELECT w FROM SE\Entity\Word w WHERE w.word = ?1 AND w.classificationSet = ?2');
         $query->setParameter(1, $word);
         $query->setParameter(2, $this->classificationSet->getID());
 
         $results = $query->getResult();
 
-        if(is_array($results))
+        if (is_array($results))
         {
-            if(array_key_exists(0, $results))
+            if (array_key_exists(0, $results))
             {
                 $wordOb = $results[0];
-                return array('p' => $wordOb->getPositive() / $this->classificationSet->getPositiveSampleSize(),
-                             'n' => $wordOb->getNegative() / $this->classificationSet->getNegativeSampleSize());
+
+                $wordAppearsInPositive = $wordOb->getPositive() / $this->classificationSet->getPositiveSampleSize();
+                $wordAppearsInNegative = $wordOb->getNegative() / $this->classificationSet->getNegativeSampleSize();
+
+                // Probability Word is Positive 
+                $psw = $wordAppearsInPositive / ($wordAppearsInPositive + $wordAppearsInNegative);
+
+                // Probability Word is Negative
+                $nsw = $wordAppearsInNegative / ($wordAppearsInNegative + $wordAppearsInPositive);
+
+
+                return array('p' => $psw,
+                             'n' => $nsw);
             }
             else
             {

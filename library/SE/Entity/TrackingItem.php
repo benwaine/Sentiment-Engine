@@ -1,5 +1,6 @@
 <?php
 namespace SE\Entity;
+use Construct\Hashstate as HasheState;
 /**
  * Descibed events tracked and to be tracked within the system.
  *
@@ -7,8 +8,18 @@ namespace SE\Entity;
  * @subpackage Tracking
  * @author     Ben Waine
  */
-class TrackingItem
+class TrackingItem implements HasheState
 {
+    const STATUS_NEW = 1;
+
+    const STATUS_PROCESSING = 2;
+
+    const STATUS_FINAL = 3;
+
+    const SAMP_IN_PROG = 1;
+
+    const SAMP_NOT_IN_PROG = 2;
+
     /**
      * Item ID
      *
@@ -43,6 +54,22 @@ class TrackingItem
      * @var string
      */
     private $term;
+
+    /**
+     * The State the term is in.
+     * Defined by constants above. (New, Processing, Fulfilled)
+     *
+     * @var int
+     */
+    private $fulfillmentState;
+
+    /**
+     * The Sampling State
+     * Defined by constants above (in progress / not in progress)
+     *
+     * @var int
+     */
+    private $samplingState;
 
     /**
      * Gets the ID of the tracked item.
@@ -117,7 +144,26 @@ class TrackingItem
      */
     public function isTracked()
     {
-        return is_null($this->getTrackingDate());
+        if($this->fulfillmentState == self::STATUS_FINAL)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public function isBeingFulFilled()
+    {
+        if($this->fulfillmentState == self::STATUS_PROCESSING)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /**
@@ -163,6 +209,62 @@ class TrackingItem
     {
         $this->term = $term;
     }
+
+    /**
+     * Gets the fulfillment state of the term.
+     *
+     * @return int
+     */
+    public function getFullfilmentState()
+    {
+        return $this->fulfillmentState;
+    }
+
+    /**
+     * Sets the Fulfillment state.
+     *
+     * @param int $fullfilmentState One of the defined fulfillment constants.
+     *
+     * @return void
+     */
+    public function setFullfilmentState($fullfilmentState)
+    {
+        $this->fulfillmentState = $fullfilmentState;
+    }
+
+    /**
+     * Returns a string used to produce hashes.
+     *
+     * @return string
+     */
+    public function getHashString()
+    {
+        return $this->updated->format('Y-m-d H:i:s') . $this->fulfillmentState;
+    }
+
+    /**
+     * Sets the sampling state of the tracked term.
+     * Defined using the constants above.
+     *
+     * @param int $state The resource state
+     *
+     * @return void
+     */
+    public function setSamplingState($state)
+    {
+        $this->samplingState = $state;
+    }
+
+    /**
+     * Get the sampling state of the resource.
+     *
+     * @return bool
+     */
+    public function isSamplingInProgress()
+    {
+        return ($this->samplingState == self::SAMP_IN_PROG);
+    }
+
 
 
 }

@@ -15,35 +15,21 @@ class Api_TrackingController extends Controller\Rest
      *
      * @return void
      */
-    public function getAction()
+    public function indexAction()
     {  
-        $start   = $this->_request->getParam('start', 1);
+
+        $start   = $this->_request->getParam('start', 0);
         $perPage = $this->_request->getParam('offset', 10);
         $sort    = SE\Entity\Repository\TrackingItemRepository::DATE_ORDER;
 
-        $items = $this->container->trackingservice->getTrackingItems($start, $perPage, $sort);
+        $items = $this->container->trackingservice->getTrackedItems($start, $perPage, $sort);
 
         $this->view->items = $items;
 
-        $this->render('get');
-    }
+        $this->view->title = 'Tracked Terms';
+        $this->view->selfLink = $this->view->apiEndPoint . '/tracking';
 
-    /**
-     * Handels a tracking request.
-     *
-     * @return void
-     */
-    public function postAction()
-    {
-        try
-        {
-            $trackingReq = $this->_helper->TrackingRequest($this->_request->getRawBody());
-            $this->container->trackingservice->addTrackingItem($trackingReq['content']);
-        }
-        catch(InvalidArgumentException $e)
-        {
-            $this->sendAlteredResponse(400, $e->getMessage());
-        }
+        $this->render('tracking-fulfillment/index', null, true);
     }
 
 }
