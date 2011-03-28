@@ -17,10 +17,12 @@
         <id name="id" type="integer" column="trackingitem_id">
             <generator strategy="AUTO" />
         </id>
-        <field name="requestDate" column="trackingitem_requestdate" type="date" nullable="false" />
-        <field name="trackingDate" column="trackingitem_trackingdate" type="date" nullable="true" />
-        <field name="updated" column="trackingitem_updateddate" type="date" nullable="false" />
+        <field name="requestDate" column="trackingitem_requestdate" type="datetime" nullable="false" />
+        <field name="trackingDate" column="trackingitem_trackingdate" type="datetime" nullable="true" />
+        <field name="updated" column="trackingitem_updateddate" type="datetime" nullable="false" />
         <field name="term" column="trackingitem_term" type="string" length="400" nullable="false" />
+        <field name="fulfillmentState" column="trackingitem_fulfillment_state" type="integer" />
+        <field name="samplingState" column="trackingitem_sampling_state" type="integer" nullable="true" />
      </entity>
 
 </doctrine-mapping>

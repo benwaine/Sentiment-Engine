@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" name="TSE">
+  <WebRole name="WebRole">
+      <Runtime>
+         <Environment>
+            <Variable name="APPLICATION_ENV" value="production" />
+         </Environment>
+      </Runtime>
+    <InputEndpoints>
+      <InputEndpoint name="HttpIn" protocol="http" port="80"/>
+    </InputEndpoints>
+    <ConfigurationSettings>
+      <!-- Windows Azure Stoarge account to be used for diagnostics -->
+      <Setting name="WindowsAzureStorageConnectionString"/>
+      <!-- To tranfer logs periodically to above Windows Azure Storage Account, empty for no transfer -->
+      <Setting name="ScheduledTransferPeriodInSeconds"/>
+      <!-- Log Level -->
+      <Setting name="LogLevel"/>
+      <!-- Windows Azure X-Drive Configuration Settings -->
+      <Setting name="XDrives"/>
+      <Setting name="XDrivesLocalCache"/>
+    </ConfigurationSettings>
+    <!-- Windows Azure X-Drive Local Storage Configuration -->
+    <!-- Required for X-Drives, and referred within "ServiceConfiguration.cscfg" Setting "XDrivesLocalCache" -->
+    <!-- LocalResources: Add one child element named "LocalStorage" -->
+    <!-- LocalStorage: Add attribute named "name" with value "MyXDrivesLocalCache" -->
+    <!-- LocalStorage: Add attribute named "cleanOnRoleRecycle" with value "false" -->
+    <!-- LocalStorage: Add attribute named "sizeInMB" with value "16" to "1000000" -->
+    <!-- Example: <LocalStorage name="MyXDrivesLocalCache" cleanOnRoleRecycle="false" sizeInMB="1000" /> -->
+    <LocalResources>	
+        </LocalResources>
+  </WebRole>
+</ServiceDefinition>

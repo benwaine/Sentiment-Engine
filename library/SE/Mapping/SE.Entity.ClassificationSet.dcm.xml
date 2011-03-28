@@ -35,6 +35,10 @@
             </cascade>
     </one-to-many>
 
+    <many-to-one target-entity="TrackingItem" field="term">
+        <join-column name="tweet_classification_set_term" referenced-column-name="trackingitem_id" />
+    </many-to-one>
+
 </entity>
 
 </doctrine-mapping>

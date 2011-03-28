@@ -73,7 +73,7 @@ class Rest extends \Zend_Rest_Controller
      */
     public function indexAction()
     {
-        $this->_forward('get');
+        
     }
 
     /**
@@ -104,7 +104,7 @@ class Rest extends \Zend_Rest_Controller
     {
         if (!is_int($code))
         {
-            throw InvalidArgumentException('HTTP Response Code must be an integer value');
+            throw new \InvalidArgumentException('HTTP Response Code must be an integer value');
         }
 
         $this->_response->setHttpResponseCode($code);

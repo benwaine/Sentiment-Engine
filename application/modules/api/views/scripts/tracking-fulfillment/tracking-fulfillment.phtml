@@ -1,0 +1,32 @@
+<?php $item = $this->item ?>
+<entry xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app">
+    <title>Fulfillment Request</title>
+
+    <id><?php echo $this->apiEndPoint .'/tracking-fulfillment/id/'. $item->getId() ?></id>
+
+    <updated><?php echo $this->item->getUpdated()->format('Y-m-d\TH:i:s\Z')?></updated>
+
+    <app:edited><?php echo $this->item->getUpdated()->format('Y-m-d\TH:i:s\Z')?></app:edited>
+
+    <author>
+        <name>User</name>
+    </author>
+
+    <content type="application/vnd.tse+xml">
+        <trackingrequest>
+            <id><?php echo $item->getId() ?></id>
+            <term><?php echo $item->getTerm() ?></term>
+        </trackingrequest>
+    </content>
+
+    <?php if($item->getFullfilmentState() == 1): ?>
+
+    <app:control>
+        <app:draft>yes</app:draft>
+    </app:control>
+    <?php endif; ?>
+    
+    <link rel="edit" href="<?php echo $this->apiEndPoint .'/tracking-fulfillment/id/'. $item->getId() ?>" />
+    <link rel="self" href="<?php echo $this->apiEndPoint .'/tracking-fulfillment/id/'. $item->getId() ?>" />
+
+</entry>

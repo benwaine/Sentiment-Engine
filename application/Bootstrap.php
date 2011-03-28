@@ -23,10 +23,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $autoloader->pushAutoloader(array($appAutoloader, 'loadClass'), 'SE');
 
         $conAutoloader = new \Doctrine\Common\ClassLoader('Construct');
-        $autoloader->pushAutoloader(array($conAutoloader, 'loadClass'), 'Construct');
-
-        $diAutoloader = new \sfServiceContainerAutoloader();
-        $autoloader->pushAutoloader(array($diAutoloader, 'autoload'));
+        $autoloader->pushAutoloader(array($conAutoloader, 'loadClass'), 'Construct');;
 
     }
 

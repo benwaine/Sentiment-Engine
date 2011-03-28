@@ -1,8 +1,16 @@
 <?xml version="1.0" ?>
 <container xmlns="http://symfony-project.org/2.0/container">
-  <services>
-    <service id="trackingservice" class="SE\Infrastructure\Tracking\Service" shared="false">
-    <argument type="service" id="entitymanager"></argument>
-    </service>
-  </services>
+    <services>
+        <service id="trackingservice" class="SE\Infrastructure\Tracking\Service" shared="false">
+            <argument type="service" id="entitymanager"></argument>
+        </service>
+        <service id="dom" class="DomDocument">
+        </service>
+        <service id="atomfeedparser" class="SE\Infrastructure\Parser\FeedParser" shared="false">
+            <argument type="service" id="dom"></argument>
+        </service>
+        <service id="atomentryparser" class="SE\Infrastructure\Parser\EntryParser" shared="false">
+            <argument type="service" id="dom"></argument>
+        </service>
+    </services>
 </container>

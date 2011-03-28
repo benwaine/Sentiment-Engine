@@ -1,6 +1,6 @@
 <?php
 namespace SE\Entity\Repository;
-
+use SE\Entity\TrackingItem as TrackingItem;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -31,26 +31,29 @@ class TrackingItemRepository extends EntityRepository
      *
      * @return array
      */
-    public function getNonTrackedItems()
+    public function getNonTrackedItems($start = null, $offset = null, $order = null)
     {
 
-        if ($order != self::STANDARD_ORDER && $order != self::DATE_ORDER)
+        if (isset($order) && ($order != self::STANDARD_ORDER && $order != self::DATE_ORDER))
         {
             throw new \InvalidArgumentException('Invalid Order Specified In Tracking Query');
         }
 
         $qb = $this->createQueryBuilder('t');
 
-        $qb->add('where', 't.trackingDate IS NULL');
+        $qb->add('where', 't.fulfillmentState != :f1');
+        $qb->setParameter('f1', TrackingItem::STATUS_FINAL);
 
-        if($offset == self::DATE_ORDER)
+        if(isset($order) && $order == self::DATE_ORDER)
         {
             add('orderBy', 't.updated DESC');
         }
 
-        $qb->setMaxResults($offset);
-        $qb->setFirstResult($start);
-
+        if(is_null($start))
+        {
+            $qb->setMaxResults($offset);
+            $qb->setFirstResult($start);
+        }
         $query = $qb->getQuery();
 
         return $query->getResult();
@@ -65,7 +68,7 @@ class TrackingItemRepository extends EntityRepository
      *
      * @return void
      */
-    public function getPagedTracingItems($start, $offset, $order = null)
+    public function getPagedTrackingItems($start, $offset, $order = null)
     {
         if ($order != self::STANDARD_ORDER && $order != self::DATE_ORDER)
         {
@@ -73,6 +76,7 @@ class TrackingItemRepository extends EntityRepository
         }
 
         $qb = $this->createQueryBuilder('t');
+        $qb->andWhere('t.fulfillmentState =' . TrackingItem::STATUS_FINAL);
 
         if($offset == self::DATE_ORDER)
         {
