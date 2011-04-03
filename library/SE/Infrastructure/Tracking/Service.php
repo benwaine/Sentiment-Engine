@@ -5,7 +5,6 @@ use SE\Entity;
 use Doctrine\ORM;
 use SE\Entity\TrackingItem as TrackingItem;
 
-
 /**
  * Tracking Service - Manages the tracking of terms
  *
@@ -90,7 +89,7 @@ class Service
     {
         $trackingItem = $this->entityManager->getRepository('SE\Entity\TrackingItem')->findBy(array('term' => $values['tracking_request']));
 
-        if(empty($trackingItem))
+        if (empty($trackingItem))
         {
             $trackingItem = new Entity\TrackingItem();
             $trackingItem->setRequestDate(new \DateTime());
@@ -115,7 +114,7 @@ class Service
      */
     public function changeFulfillmentStatus($value, $fulfilled = false)
     {
-        if(!isset($value['content']['id']))
+        if (!isset($value['content']['id']))
         {
             throw new \InvalidArgumentException('No ID in content Array');
         }
@@ -124,21 +123,21 @@ class Service
 
         $item = $rep->find($value['content']['id']);
 
-        if(is_null($item))
+        if (is_null($item))
         {
             throw new Exception('No Item Tracked With This ID');
         }
         else
         {
-            if($fulfilled)
+            if ($fulfilled)
             {
-                  $state = TrackingItem::STATUS_FINAL;
+                $state = TrackingItem::STATUS_FINAL;
             }
             else
             {
-              $state = ($value['draft']) ? TrackingItem::STATUS_NEW : TrackingItem::STATUS_PROCESSING;
+                $state = ($value['draft']) ? TrackingItem::STATUS_NEW : TrackingItem::STATUS_PROCESSING;
             }
-            
+
             $item->setFullfilmentState($state);
             $item->setUpdated(new \DateTime());
 
@@ -147,11 +146,61 @@ class Service
     }
 
     /**
-     * 
+     * Changes the sampling status of a tracking item.
+     *
+     * @return void
      */
-    public function changeSamplingStatus()
+    public function changeSamplingStatus($value, $noSample = false)
     {
-        
+        if (!isset($value['content']['samplingrequest']['id']))
+        {
+            throw new \InvalidArgumentException('No ID in content Array');
+        }
+
+        $rep = $this->entityManager->getRepository('SE\Entity\TrackingItem');
+
+        $item = $rep->find($value['content']['samplingrequest']['id']);
+
+        if (is_null($item))
+        {
+            throw new Exception('No Item Tracked With This ID');
+        }
+        else
+        {
+            if ($noSample)
+            {
+                $state = TrackingItem::SAMP_NOT_SAMPLING;
+            }
+            else
+            {
+                // Implementation has leaked here. @todo - perhaps a helper / some kind of platform agnostic data
+                $state = (isset($value['app:control']['app:draft']) && $value['app:control']['app:draft'] == 'yes')
+                                ? TrackingItem::SAMP_NOT_IN_PROG : TrackingItem::SAMP_IN_PROG;
+            }
+
+            $item->setSamplingState($state);
+            $item->setUpdated(new \DateTime());
+
+            $this->entityManager->flush();
+        }
+    }
+
+    /**
+     * Get pages datapoints relating to a specific term
+     * 
+     * @param int $id       The Term ID datapoints are required for.
+     * @param int $start    For Pagination: Which result to start the returned results.
+     * @param int $pageSize The size of the result set to return
+     *
+     * @return array
+     */
+    public function getDataPoints($id, $start, $pageSize)
+    {
+        $repo = $this->entityManager->getRepository('SE\Entity\DataPoint');
+
+        $dataPoints = $repo->getPagedDatapoints($id, $start, $pageSize);
+
+        return $dataPoints;
     }
 
 }

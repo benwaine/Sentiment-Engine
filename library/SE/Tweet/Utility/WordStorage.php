@@ -1,11 +1,14 @@
 <?php
 namespace SE\Tweet\Utility;
+
 use Doctrine\DBAL;
+
 /**
  * Class manages quick DB access to word rows in the Database.
  */
 class WordStorage
 {
+
     /**
      * Connection to the database.
      * 
@@ -61,7 +64,7 @@ class WordStorage
 
     public function updateWord(array $word)
     {
-        //var_dump($word);die;
+        
         $sql = "UPDATE classification_set_word
                 SET
                 classification_set_word_set_id = :setID
@@ -81,6 +84,60 @@ class WordStorage
         $stmt->bindParam(':id', $word['id']);
 
         $stmt->execute();
+    }
+
+    public function insertWordArray(array $words)
+    {
+        $wc = count($words);
+
+        if ($wc > 400)
+        {
+            $workArrays = array_chunk($words, 400);
+        }
+        else
+        {
+            $workArrays = array($words);
+        }
+        
+        foreach ($workArrays as $wa)
+        {
+
+            $sqlStmt = "INSERT INTO classification_set_word
+                  ( classification_set_word_set_id
+                  ,classification_set_word_word
+                  ,classification_set_word_positive
+                  ,classification_set_word_negative
+                  ,classification_set_word_appearences)
+                  VALUES ";
+
+
+            foreach ($wa as $word)
+            {
+                $sqlStmt .= "(?, ?, ?, ?, ?),";
+            }
+
+            $sqlStmt = substr($sqlStmt, 0, -1);
+
+            $stmt = $this->conn->prepare($sqlStmt);
+
+            $bindCount = 0;
+
+            foreach ($wa as $key => $word)
+            {
+                if(!is_array($word))
+                {
+                    var_dump($word);
+                }
+                
+                $stmt->bindParam(++$bindCount, $word['classification_set_word_set_id']);
+                $stmt->bindParam(++$bindCount, $word['classification_set_word_word']);
+                $stmt->bindParam(++$bindCount, $word['classification_set_word_positive']);
+                $stmt->bindParam(++$bindCount, $word['classification_set_word_negative']);
+                $stmt->bindParam(++$bindCount, $word['classification_set_word_appearences']);
+            }
+
+            $stmt->execute();
+        }
     }
 }
 

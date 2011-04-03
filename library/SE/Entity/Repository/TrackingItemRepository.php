@@ -78,7 +78,7 @@ class TrackingItemRepository extends EntityRepository
         $qb = $this->createQueryBuilder('t');
         $qb->andWhere('t.fulfillmentState =' . TrackingItem::STATUS_FINAL);
 
-        if($offset == self::DATE_ORDER)
+        if($order == self::DATE_ORDER)
         {
             $qb->add('orderBy', 't.updated DESC');
         }
@@ -87,8 +87,9 @@ class TrackingItemRepository extends EntityRepository
         $qb->setFirstResult($start);
 
         $query = $qb->getQuery();
+        $result = $query->getResult();
 
-        return $query->getResult();
+        return $result;
     }
 
 }

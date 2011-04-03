@@ -1,6 +1,6 @@
 <?php
 namespace SE\Entity;
-use Construct\Hashstate as HasheState;
+use Construct\HashState as HashState;
 /**
  * Descibed events tracked and to be tracked within the system.
  *
@@ -8,7 +8,7 @@ use Construct\Hashstate as HasheState;
  * @subpackage Tracking
  * @author     Ben Waine
  */
-class TrackingItem implements HasheState
+class TrackingItem implements HashState
 {
     const STATUS_NEW = 1;
 
@@ -19,6 +19,8 @@ class TrackingItem implements HasheState
     const SAMP_IN_PROG = 1;
 
     const SAMP_NOT_IN_PROG = 2;
+
+    const SAMP_NOT_SAMPLING = 3;
 
     /**
      * Item ID
