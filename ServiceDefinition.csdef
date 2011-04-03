@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" name="TSE">
-  <WebRole name="WebRole">
+  <WebRole name="WebRole" vmsize="ExtraSmall">
       <Runtime>
          <Environment>
             <Variable name="APPLICATION_ENV" value="production" />

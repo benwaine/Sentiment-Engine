@@ -1,179 +1,207 @@
 <?php
+
 use SE\Tweet\Classifier;
+
 ini_set('html_errors', 0);
+ini_set('display_errors', 1);
 require_once 'bootstrap.php';
 
 $bootstrap = $application->getBootstrap();
 $doctrine = $bootstrap->getResource('doctrine');
 $em = $doctrine->getEntityManager();
+
+
 // ----------------------- PICK UP JOB --------------- //
 
-$location = array('location' => 'http://sentiment-engine.dev/api/tracking-fulfillment');
+$opts = $bootstrap->getOptions();
+
+$location = array('location' => $opts['api']['sample']);
 
 $client = new SE\Infrastructure\Tracking\APIJobClient($location, new \Zend_Http_Client());
 
-$job = $client->getJob();
+while (true)
+{
 
-$term = cleanString($job['content']['trackingitem']['term']);
+    $job = $client->getJob();
 
-$jobTerm = $em->find('SE\Entity\TrackingItem', $job['content']['trackingitem']['id']);
+    if(!$job)
+    {
+        echo "No Job. Sleep / Re-Request. \n";
+        sleep(10);
+        continue;
+    }
+
+    $term = cleanString($job['content']['trackingitem']['term']);
+
+    echo "Begining Sampling For Term: $term \n";
+   
+    $jobTerm = $em->find('SE\Entity\TrackingItem', $job['content']['trackingitem']['id']);
 
 // ----------------------- DO JOB      ----------------//
-
-// ----------------------- Gather Initial sample ------// 
-
-
+// ----------------------- Gather Initial sample ------//
 // Gather a sample of Tweets with the keyword in.
-$sampler = new SE\Tweet\Utility\Sampler(new \Zend_Http_Client(), $term, 1500);
-$sample = $sampler->gatherSample();
+    $sampler = new SE\Tweet\Utility\Sampler(new \Zend_Http_Client(), $term, 1000);
+    $sample = $sampler->gatherSample();
 
 // Sample is pre sorted (array has two p / n for postive and negative tweets.
 // ------ Create a new Classification Set
-$classificationSet = new SE\Entity\ClassificationSet();
-$classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
-$classificationSet->setDate(new DateTime());
-$classificationSet->setSampleSize(1700);
-$classificationSet->setTerm($jobTerm);
-$em->persist($classificationSet);
+    $classificationSet = new SE\Entity\ClassificationSet();
+    $classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
+    $classificationSet->setDate(new DateTime());
+    $classificationSet->setSampleSize(2000);
+    $classificationSet->setTerm($jobTerm);
+    $em->persist($classificationSet);
 
 // Give Tweets a classification and add them to the classification set
 
-$count = 1;
+    $count = 1;
 
-foreach ($sample['p'] as $tweetData)
-{
-    $tweet = jsonToTweet($tweetData);
-    cleanTweet($tweet);
+    foreach ($sample['p'] as $tweetData)
+    {
+        $tweet = jsonToTweet($tweetData);
+        cleanTweet($tweet);
 
-    $classification = new SE\Entity\TweetClassification($tweet);
-    $classification->setClassificationType(1);
-    $classification->setClassificationResult(SE\Tweet\Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE);
-    $classification->setClassificationTime(new \DateTime());
+        $classification = new SE\Entity\TweetClassification($tweet);
+        $classification->setClassificationType(1);
+        $classification->setClassificationResult(SE\Tweet\Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE);
+        $classification->setClassificationTime(new \DateTime());
 
-    $tweet->addClassification($classification);
-    $classificationSet->addTweet($classification);
+        $tweet->addClassification($classification);
+        $classificationSet->addTweet($classification);
 
-    $em->persist($tweet);
-    $em->persist($classification);
+        $em->persist($tweet);
+        $em->persist($classification);
 
-    echo $count++ . "\n";
-}
+        echo $count++ . "\n";
+    }
 
 
-foreach ($sample['n'] as $tweetData)
-{
-    $tweet = jsonToTweet($tweetData);
-    cleanTweet($tweet);
+    foreach ($sample['n'] as $tweetData)
+    {
+        $tweet = jsonToTweet($tweetData);
+        cleanTweet($tweet);
 
-    $classification = new SE\Entity\TweetClassification($tweet);
-    $classification->setClassificationType(1);
-    $classification->setClassificationResult(SE\Tweet\Classifier\Classifier::CLASSIFICATION_RESULT_NEGATIVE);
-    $classification->setClassificationTime(new \DateTime());
+        $classification = new SE\Entity\TweetClassification($tweet);
+        $classification->setClassificationType(1);
+        $classification->setClassificationResult(SE\Tweet\Classifier\Classifier::CLASSIFICATION_RESULT_NEGATIVE);
+        $classification->setClassificationTime(new \DateTime());
 
-    $tweet->addClassification($classification);
-    $classificationSet->addTweet($classification);
+        $tweet->addClassification($classification);
+        $classificationSet->addTweet($classification);
 
-    $em->persist($tweet);
-    $em->persist($classification);
-    echo $count++ . "\n";
-}
+        $em->persist($tweet);
+        $em->persist($classification);
+        echo $count++ . "\n";
+    }
 
-$em->flush();
+    $em->flush();
 
 
 // ------------------- Create Bayes Sample Data
 
-$conn = $em->getConnection();
+    $conn = $em->getConnection();
 
-$wordStorage = new SE\Tweet\Utility\WordStorage($conn);
+    $wordStorage = new SE\Tweet\Utility\WordStorage($conn);
 // -- @todo Change this Query to pick the correct Classification set al the time
-$query = $em->createQuery('SELECT c, tc FROM SE\Entity\ClassificationSet c JOIN c.classifiedTweets tc');
-$sets = $query->getResult();
-$set = $sets[0];
+    
+    $query = $em->createQuery('SELECT c, tc FROM SE\Entity\ClassificationSet c JOIN c.classifiedTweets tc WHERE c.term = ?1');
+    $query->setParameter('1', $job['content']['trackingitem']['id']);
+    $sets = $query->getResult();
+    
 
-$count = 1;
+    if(!isset($sets))
+    {
+        $client->resetJob($job);
+    }
+    
+    $set = $sets[0];
+
+    $count = 1;
 
 // Prepare the most common wrds array
 
-$h = fopen('commonwords.txt', 'r');
-$cWordAr = array();
-$inc = 0;
-while(($word = fgets($h)) !== FALSE)
-{
-   $cWordAr[] = trim($word);
-   $inc++;
-   if($inc >= 200) break;
-}
-
-fclose($h);
-
-
-
-// Get all the tweets in a classification set.
-foreach ($set->getTweets() as $classification)
-{
-    echo 'Tweet: ' . $count++ . "  ";
-    $tweet  = $classification->getTweet();
-    $text   = $tweet->getText();
-    $wordAr = explode(' ', $text);
-
-    $wordsInTweet = array();
-
-    // Explode the words in a tweet and check for the presence of the word in the set using a DQL query.
-    foreach ($wordAr as $word)
+    $h = fopen('commonwords.txt', 'r');
+    $cWordAr = array();
+    $inc = 0;
+    while (($word = fgets($h)) !== FALSE)
     {
+        $cWordAr[] = trim($word);
+        $inc++;
+        if ($inc >= 200)
+            break;
+    }
 
-        if($word == " " || $word == "" || in_array($word, $wordsInTweet) || in_array($word, $cWordAr) || $word == $term)
+    fclose($h);
+
+    $allWordsAr = array();
+
+    // Get all the tweets in a classification set.
+    foreach ($set->getTweets() as $classification)
+    {
+        echo 'Tweet: ' . $count++ . "  ";
+        $tweet = $classification->getTweet();
+        $text = $tweet->getText();
+        $wordAr = explode(' ', $text);
+
+        $wordsInTweet = array();
+
+        // Explode the words in a tweet and check for the presence of the word in the set using a DQL query.
+        foreach ($wordAr as $word)
         {
-            // Words are only counted once. A double space is not a word
-            continue;
-        }
 
-        $wordsInTweet[] = $word;
-
-        $wordAr = $wordStorage->getWord($set->getId(), $word);
-
-        if(is_null($wordAr) || !$wordAr)
-        {
-            echo 'N ';
-            $result = $classification->getClassificationResult();
-
-            // Insert the word into the database
-            $wA = array('classification_set_word_set_id' => $set->getId(),
-                        'classification_set_word_word' => $word,
-                        'classification_set_word_positive' => ($result == Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE) ? 1: 0,
-                        'classification_set_word_negative' => ($result == Classifier\Classifier::CLASSIFICATION_RESULT_NEGATIVE) ? 1 : 0,
-                        'classification_set_word_appearences' => 1
-                        );
-
-            $wordStorage->insertWord($wA);
-        }
-        else
-        {
-            echo 'U ';
-            // Update the entry in the database
-            $result = $classification->getClassificationResult();
-
-            if($result == Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE)
+            if ($word == " " || $word == "" || in_array($word, $wordsInTweet) || in_array($word, $cWordAr) || $word == $term)
             {
-                $wordAr['classification_set_word_positive']++;
+                // Words are only counted once. A double space is not a word
+                continue;
+            }
+
+            $wordsInTweet[] = $word;
+
+            //$wordAr = $wordStorage->getWord($set->getId(), $word);
+
+            if (!array_key_exists($word, $allWordsAr))
+            {
+                echo 'N ';
+                $result = $classification->getClassificationResult();
+
+                // Insert the word into the database
+                $wA = array('classification_set_word_set_id' => $set->getId(),
+                    'classification_set_word_word' => $word,
+                    'classification_set_word_positive' => ($result == Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE) ? 1 : 0,
+                    'classification_set_word_negative' => ($result == Classifier\Classifier::CLASSIFICATION_RESULT_NEGATIVE) ? 1 : 0,
+                    'classification_set_word_appearences' => 1
+                );
+
+                $allWordsAr[$word] = $wA;
             }
             else
             {
-                $wordAr['classification_set_word_negative']++;
+                // Update the word entry in the Array.
+                echo 'U ';
+
+                $wordAr = $allWordsAr[$word];
+
+                $result = $classification->getClassificationResult();
+
+                if ($result == Classifier\Classifier::CLASSIFICATION_RESULT_POSITIVE)
+                {
+                    $wordAr['classification_set_word_positive']++;
+                }
+                else
+                {
+                    $wordAr['classification_set_word_negative']++;
+                }
+
+                $wordAr['classification_set_word_appearences']++;
             }
-
-            $wordAr['classification_set_word_appearences']++;
-
-            $wordStorage->updateWord($wordAr);
         }
+        echo "\n";
     }
-
-    echo "\n";
-}
+    $wordStorage->insertWordArray($allWordsAr);
 
 // ------------------------- Job Complete
-$client->registerCompleteJob($job);
+    $client->registerCompleteJob($job);
+}
 
 // ---------------------------------------------- Utility Functions
 // -- @todo refactor into a class based solution

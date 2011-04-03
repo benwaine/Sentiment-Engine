@@ -611,7 +611,25 @@ class MsSqlPlatform extends AbstractPlatform
 
                 if (!$orderby) {
                     $over = 'ORDER BY (SELECT 0)';
-                } else {
+                } else {                                   // Get Columns
+                   $columns = array();
+                    if (preg_match_all('/([a-zA-Z][0-9]+_\.[a-zA-Z0-9\-_]+)\sAS\s([a-zA-Z0-9\-\_]+)/', $query, $matched))
+                    {
+                        for ($i = 0; $i < count($matched[1]); ++$i)
+                        {
+                            $columns[$matched[1][$i]] = $matched[2][$i];
+                        }
+                    }
+                    // Replace columns with their alias in the "orderby" statement
+
+                    if (preg_match_all('/([a-zA-Z][0-9]+_\.[a-zA-Z0-9\-_]+)\s/i', $orderby, $matches))
+                    {
+                        foreach ($matches[1] as $column)
+                        {
+                            $orderby = preg_replace('/' . $column . '/', $columns[$column], $orderby);
+                        }
+                    }
+
                     $over = preg_replace('/\"[^,]*\".\"([^,]*)\"/i', '"inner_tbl"."$1"', $orderby);
                 }
 

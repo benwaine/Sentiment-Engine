@@ -12,11 +12,11 @@
    xmlns='http://doctrine-project.org/schemas/orm/doctrine-mapping'
    xsi:schemaLocation='http://doctrine-project.org/schemas/orm/doctrine-mapping ../../../docs/doctrine-mapping.xsd'>
 
-    <entity name="SE\Entity\DataPoint" table="datapoint">
+    <entity name="SE\Entity\DataPoint" table="datapoint" repository-class="SE\Entity\Repository\DatapointRepository">
         <id name="id" type="integer" column="datapoint_id">
             <generator strategy="AUTO" />
         </id>
-        <field name="dateTime" type="date" column="datapoint_datetime" />
+        <field name="dateTime" type="datetime" column="datapoint_datetime" />
         <field name="negative" type="integer" column="datapoint_negative" />
         <field name="positive" type="integer" column="datapoint_positive" />
         <field name="unclassified" type="integer" column="datapoint_unclassified" />

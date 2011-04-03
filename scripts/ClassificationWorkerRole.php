@@ -1,7 +1,10 @@
 <?php
-use SE\Tweet\Classifier;
-require_once 'bootstrap.php';
 
+use SE\Tweet\Classifier;
+
+ini_set('html_errors', 0);
+ini_set('display_errors', 1);
+require_once 'bootstrap.php';
 
 // --------------------------- Configure Env
 
@@ -9,6 +12,14 @@ $bootstrap = $application->getBootstrap();
 $doctrine = $bootstrap->getResource('doctrine');
 
 $em = $doctrine->getEntityManager();
+
+$opts = $bootstrap->getOptions();
+
+$location = array('location' => $opts['api']['classification']);
+
+$client = new SE\Infrastructure\Tracking\APIJobClient($location, new \Zend_Http_Client());
+
+
 
 $scheme = 'http://';
 $url = 'stream.twitter.com/1/statuses/filter.json';
@@ -34,93 +45,136 @@ $fn = function($data)
             }
         };
 
-$factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
-
-$factory->setMethod('POST');
-$factory->addTrack('birthday');
-
-$streamer = $factory->getStreamIterator($fn); /* @var $set \SE\Entity\ClassificationSet */
-
-// ---------------------- Configure Job
-
-// Obtain the correct classifier for use on this job
-$set = $em->find('SE\Entity\ClassificationSet', 1);
-
-$classifier = new Classifier\Bayes($em, $set);
-
-// Define start / stop time for job to run
-
-$now = new DateTime();
-$nowStamp = $now->getTimestamp();
-$stopInterval = new DateInterval('PT1M');
-$now->add($stopInterval);
-$stopStamp = $now->getTimestamp();
-
-// ------------------------------------------- // 
-
-// ------------------------------- DO Job ----/// 
-
-$classifications = array();
-
-while(true)
+while (true)
 {
-    $itr = 0;
-    foreach ($streamer as $tweet) /* @var $tweet \SE\Entity\ClassifiedTweet  */
+    
+    $job = $client->getJob();
+
+    $jobObj = $em->find('SE\Entity\TrackingItem', $job['content']['samplingrequest']['id']);
+
+    $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
+
+    $factory->setMethod('POST');
+    $factory->addTrack($jobObj->getTerm());
+
+    $streamer = $factory->getStreamIterator($fn); /* @var $set \SE\Entity\ClassificationSet */
+
+    // ---------------------- Configure Job
+
+    $query = $em->createQuery('SELECT cs FROM SE\Entity\ClassificationSet cs WHERE cs.term = ?1');
+    $query->setParameter('1', $job['content']['samplingrequest']['id']);
+
+    $result = $query->getResult();
+
+    if (is_array($result))
     {
-        if ($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
+        $classificationSet = $result[0];
+    }
+    else
+    {
+        throw new Exception('Error in classification set');
+    }
+
+    $classifier = new Classifier\Bayes($em, $classificationSet);
+
+    // Define start / stop time for job to run
+
+    $now = new DateTime();
+    $nowStamp = $now->getTimestamp();
+    $stopInterval = new DateInterval('PT10M');
+    $now->add($stopInterval);
+    $stopStamp = $now->getTimestamp();
+
+// ------------------------------------------- //
+// ------------------------------- DO Job ----///
+
+    $classifications = array();
+
+    while (true)
+    {
+        $itr = 0;
+        foreach ($streamer as $tweet) /* @var $tweet \SE\Entity\ClassifiedTweet  */
         {
-            if ($tweet->getLanguage() != 'en')
+            if ($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
             {
-                continue;
+                if ($tweet->getLanguage() != 'en')
+                {
+                    continue;
+                }
+
+                $classifications[] = $classifier->classify($tweet);
             }
 
-            $classifications[] = $classifier->classify($tweet);
-        }
-    
-        if(++$itr % 10 == 0)
-        {
-            if($stopStamp <= time())
+            if (++$itr % 10 == 0)
             {
-                break 2;
+                if ($stopStamp <= time())
+                {
+                    // Record a datapoint
+                    $meta = array(
+                        'datetime' => new DateTime(),
+                        'term' => $jobObj
+                    );
+                    $classificationResult = classify($classifications);
+                    $dpValue = array_merge($meta, $classificationResult);
+
+                    $datapoint = new SE\Entity\Datapoint($dpValue);
+
+                    $em->persist($datapoint);
+                    $em->flush();
+                    $termStr = $jobObj->getTerm();
+                    echo 'Datapoint Recoreded at ' . $meta['datetime']->format('d/M/Y H:i:s') . " for: $termStr \n";
+
+                    $client->registerCompleteJob($job);
+                    break 2;
+                }
             }
         }
     }
 }
 
-$positiveTweets = 0;
-$negativeTweets = 0;
-$unclassified = 0;
-$totalTweets = count($classifications);
-
-
-foreach($classifications as $c => $set)
+function classify($classifications)
 {
+    $unclassified = 0;
+    $positiveTweets = 0;
+    $negativeTweets = 0;
 
-    if($set['p'] === false && $set['n'] === false)
+
+    foreach ($classifications as $c => $set)
     {
-        $unclassified++;
+
+        if ($set['p'] === false && $set['n'] === false)
+        {
+            $unclassified++;
+        }
+        elseif ($set['p'] === false && intOrFloat($set['n']))
+        {
+            $negativeTweets++;
+        }
+        elseif ($set['n'] === false && intOrFloat($set['p']))
+        {
+            $positiveTweets++;
+        }
+        elseif ((intOrFloat($set['n']) && intOrFloat($set['p'])) && ($set['p'] > $set['n']))
+        {
+            $positiveTweets++;
+        }
+        elseif ((intOrFloat($set['n']) && intOrFloat($set['p'])) && ($set['p'] < $set['n']))
+        {
+            $negativeTweets++;
+        }
+        else
+        {
+            // Equal results
+            $unclassified++;
+        }
     }
-    elseif($set['p'] === false && intOrFloat($set['n']))
-    {
-        $negativeTweets++;
-    }
-    elseif($set['n'] === false && intOrFloat($set['p']))
-    {
-        $positiveTweets++;
-    }
-    elseif((intOrFloat($set['n']) && intOrFloat($set['p'])) && ($set['p'] > $set['n']))
-    {
-        $positiveTweets++;
-    }
-    elseif((intOrFloat($set['n']) && intOrFloat($set['p'])) && ($set['p'] < $set['n']))
-    {
-        $negativeTweets++;
-    }
-    else
-    {
-        // Equal results
-        $unclassified++;
-    }
+
+    $cArray = array('positive' => $positiveTweets,
+        'negative' => $negativeTweets,
+        'unclassified' => $unclassified,
+        'sampled' => count($classifications));
+
+    return $cArray;
 }
 
 function intOrFloat($value)
@@ -128,9 +182,10 @@ function intOrFloat($value)
     return (is_int($value) || is_float($value) || $value == 1 || $value == 0);
 }
 
-var_dump($positiveTweets);
-var_dump($negativeTweets);
-var_dump($totalTweets);
-
-
+function getTimestamp(DateInterval $interval)
+{
+    $date = new DateTime();
+    $date->add($interval);
+    return $date->getTimestamp();
+}
 

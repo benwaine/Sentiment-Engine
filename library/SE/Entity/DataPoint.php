@@ -64,9 +64,21 @@ class DataPoint
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($values)
     {
-        
+        $valid = array('positive', 'negative', 'unclassified', 'term', 'sampled', 'datetime');
+
+        if(\array_diff(array_keys($values), $valid))
+        {
+            throw new \InvalidArgumentException('Invalid Datapoint input');
+        }
+
+        $this->setPositive($values['positive']);
+        $this->setNegative($values['negative']);
+        $this->setUnclassified($values['unclassified']);
+        $this->setTerm($values['term']);
+        $this->setSampled($values['sampled']);
+        $this->setDatetime($values['datetime']);
     }
 
     /**
@@ -98,7 +110,7 @@ class DataPoint
      */
     public function getDatetime()
     {
-        return $this->datetime;
+        return $this->dateTime;
     }
 
     /**
@@ -110,7 +122,7 @@ class DataPoint
      */
     public function setDatetime($datetime)
     {
-        $this->datetime = $datetime;
+        $this->dateTime = $datetime;
     }
 
     
@@ -164,9 +176,9 @@ class DataPoint
      *
      * @return int
      */
-    public function getUnclassifed()
+    public function getUnclassified()
     {
-        return $this->unclassifed;
+        return $this->unclassified;
     }
 
     /**
@@ -176,9 +188,9 @@ class DataPoint
      *
      * @return void
      */
-    public function setUnclassifed($unclassifed)
+    public function setUnclassified($unclassifed)
     {
-        $this->unclassifed = $unclassifed;
+        $this->unclassified = $unclassifed;
     }
 
     /**
@@ -188,7 +200,7 @@ class DataPoint
      */
     public function getSampled()
     {
-        return $this->sampled;
+        return $this->sample;
     }
 
     /**
@@ -200,7 +212,7 @@ class DataPoint
      */
     public function setSampled($sampled)
     {
-        $this->sampled = $sampled;
+        $this->sample = $sampled;
     }
 
     /**

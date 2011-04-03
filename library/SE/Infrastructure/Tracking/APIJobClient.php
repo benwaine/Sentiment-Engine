@@ -26,11 +26,11 @@ class APIJobClient
     /**
      * The http object
      * 
-     * @var Zend_Http_Client
+ `    * @var Zend_Http_Client
      */
     private $http;
 
-    /**
+   /**
      * Initialises an instance of the APIJobClient class
      *
      * @param array            $config Config Array
@@ -54,8 +54,13 @@ class APIJobClient
         $this->loadJobFeed();
 
         $job = $this->selectJob();
+        
+        if(is_null($job))
+        {
+            return false;
+        }
 
-        $reserved = $this->reserveJob($job);
+        $reserved = $this->changeReservedStatus($job, true);
 
         if ($reserved)
         {
@@ -87,6 +92,11 @@ class APIJobClient
         return ($response->getStatus() == 204);
     }
 
+    public function resetJob(array $job)
+    {
+        $this->changeReservedStatus($job, false);
+    }
+
     /**
      * Load the job feed from the remote location
      *
@@ -116,7 +126,7 @@ class APIJobClient
         }
         else
         {
-            throw new RuntimeException('Job Que Unreachable');
+            throw new \RuntimeException('Job Que Unreachable');
         }
     }
 
@@ -129,7 +139,7 @@ class APIJobClient
     {
         if (!isset($this->feed))
         {
-            throw new RuntimeException('Feed not initited in APIJobClient');
+            throw new \RuntimeException('Feed not initited in APIJobClient');
         }
 
         while (!is_null($item = array_pop($this->feed)))
@@ -152,7 +162,7 @@ class APIJobClient
      *
      * @return bool
      */
-    private function reserveJob(array $job)
+    private function changeReservedStatus(array $job, $reserved = true)
     {
 
         if (!isset($job['link']['self']))
@@ -181,7 +191,7 @@ class APIJobClient
         $this->http->resetParameters(true);
         $this->http->setUri($job['link']['self']);
         $this->http->setMethod(\Zend_Http_Client::PUT);
-        $this->http->setRawData($this->removeAppDraft($dom));
+        $this->http->setRawData(($reserved) ? $this->removeAppDraft($dom) : $this->addAppDraft($dom));
         $this->http->setHeaders('Etag', $etag);
         $response = $this->http->request();
 
@@ -197,6 +207,20 @@ class APIJobClient
         return $domDocument->saveXML();
     }
 
+    public function addAppDraft(\DomDocument $domDocument)
+    {
+
+        $appControl = $domDocument->createElementNS('http://www.w3.org/2007/app', 'app:control');
+        $appDraft = $domDocument->createElementNS('http://www.w3.org/2007/app', 'app:draft', 'yes');
+
+        $entries = $domDocument->getElementsByTagNameNS('http://www.w3.org/2005/Atom', 'entry');
+
+        $appControl->appendChild($appDraft);
+        $entries->item(0)->appendChild($appControl);
+
+        return $domDocument->saveXML();
+
+    }
     /**
      * Recurivley parses an xml structure into an array. Does NOT
      * parse attricutes.
