@@ -122,6 +122,7 @@ class ClassificationSet
      */
     public function addTweet(TweetClassification $tweet)
     {
+        $this->sampleSize++;
         $tweet->setClassificationSet($this);
         $this->tweets[] = $tweet;
     }

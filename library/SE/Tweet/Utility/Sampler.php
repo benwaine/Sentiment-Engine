@@ -43,7 +43,7 @@ class Sampler
      *
      * @var integer
      */
-    const MAX_PAGE = 100;
+    const MAX_PAGE = 50;
 
     /**
      * Represents a 'happy' / positive sample
@@ -86,9 +86,29 @@ class Sampler
     {
         $pagesRequired  = $this->pageNumber();
 
-        $positiveTweets = $this->executeSampleGathering(self::HAPPY_SAMPLE, $pagesRequired);
-        sleep(10);
         $negativeTweets = $this->executeSampleGathering(self::SAD_SAMPLE, $pagesRequired);
+
+        sleep(10);
+
+        $cTweets = count($negativeTweets);
+
+        $pagesRequired = \ceil($cTweets / self::MAX_PAGE);
+
+        $positiveTweets = $this->executeSampleGathering(self::HAPPY_SAMPLE, $pagesRequired);
+
+        $cPtweets = count($positiveTweets);
+        $cNTweets = count($negativeTweets);
+
+        // Equalise the sample classes.
+
+        if($cPtweets > $cNTweets)
+        {
+            $positiveTweets = \array_slice($positiveTweets, 0, $cNTweets);
+        }
+        elseif($cNTweets > $cPtweets)
+        {
+            $negativeTweets = \array_slice($negativeTweets, 0, $cPtweets);
+        }
 
         return array('p' => $positiveTweets, 'n' => $negativeTweets);
     }
@@ -115,8 +135,16 @@ class Sampler
         {
             echo $x;
             $tweets = $this->sendRequest($searchString, $x);
-            $sample = array_merge($sample, $tweets);
-            sleep(2);
+
+            if($tweets)
+            {
+                $sample = array_merge($sample, $tweets);
+                sleep(2);
+            }
+            else
+            {
+               break;
+            }
         }
 
         return $sample;
@@ -185,6 +213,22 @@ class Sampler
         {
             // Success!
             $responceTweets = \json_decode($response->getBody(), true);
+            $c = count($responceTweets['results']);
+            echo "Response Tweets Count: $c \n";
+
+            if($c === 0)
+            {
+               return false;
+            }
+
+            foreach($responceTweets['results'] as $key => $resp)
+            {
+                if(strpos($resp['text'], ':p') || strpos($resp['text'], ':P'))
+                {
+                    unset($responceTweets['results'][$key]);
+                }
+            }
+
             return $responceTweets['results'];
         }
     }
@@ -216,13 +260,13 @@ class Sampler
         $params['rpp'] = "rpp=" . self::MAX_PAGE;
 
         // 300 miles radius round conventry
-        $params['geocode'] = "geocode=52.405247,-1.508045,300mi";
+        //$params['geocode'] = "geocode=52.405247,-1.508045,300mi";
 
         //langauge
         $params['lang'] = 'lang=en';
 
         //Result type - recent rather than popular
-        //$params['result_type'] = 'result_type=recent';
+        $params['result_type'] = 'result_type=recent';
 
         // Page - variable
         $params['page'] = "page=<PAGE_REP>";
