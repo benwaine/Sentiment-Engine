@@ -45,6 +45,7 @@ class Sampler
      */
     const MAX_PAGE = 50;
 
+
     /**
      * Represents a 'happy' / positive sample
      *
@@ -213,6 +214,7 @@ class Sampler
         {
             // Success!
             $responceTweets = \json_decode($response->getBody(), true);
+
             $c = count($responceTweets['results']);
             echo "Response Tweets Count: $c \n";
 
@@ -228,7 +230,6 @@ class Sampler
                     unset($responceTweets['results'][$key]);
                 }
             }
-
             return $responceTweets['results'];
         }
     }
@@ -262,11 +263,13 @@ class Sampler
         // 300 miles radius round conventry
         //$params['geocode'] = "geocode=52.405247,-1.508045,300mi";
 
+
         //langauge
         $params['lang'] = 'lang=en';
 
         //Result type - recent rather than popular
         $params['result_type'] = 'result_type=recent';
+
 
         // Page - variable
         $params['page'] = "page=<PAGE_REP>";

@@ -21,6 +21,7 @@ $client = new SE\Infrastructure\Tracking\APIJobClient($location, new \Zend_Http_
 
 while (true)
 {
+
     $job = $client->getJob();
 
     if(!$job)
@@ -47,13 +48,14 @@ while (true)
     $classificationSet = new SE\Entity\ClassificationSet();
     $classificationSet->setType(\SE\Entity\ClassificationSet::TYPE_CORPUS);
     $classificationSet->setDate(new DateTime());
+
     $classificationSet->setTerm($jobTerm);
     $em->persist($classificationSet);
 
 // Give Tweets a classification and add them to the classification set
 
     $count = 1;
-    
+
     foreach ($sample['p'] as $tweetData)
     {
         $tweet = jsonToTweet($tweetData);
@@ -125,7 +127,9 @@ while (true)
     {
         $cWordAr[] = trim($word);
         $inc++;
+
         if ($inc >= 400)
+
             break;
     }
 
@@ -189,6 +193,7 @@ while (true)
                 }
 
                 $allWordsAr[$word]['classification_set_word_appearences']++;
+
             }
         }
         echo "\n";
@@ -242,6 +247,7 @@ function cleanString($string)
 {
     $string = str_replace(array(':p', ':-p'), '', $string);
     $string = str_replace(array(':)', ':-)', ':p', ':(', ':-(', ':', ',', ';', '.', "\'", 'RT', '!', "\"", "?" ), '', $string);
+
     $string = mb_strtolower($string, 'UTF8');
 
     return $string;

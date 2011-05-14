@@ -7,7 +7,9 @@ require_once 'bootstrap.php';
 
 $bootstrap = $application->getBootstrap();
 $doctrine = $bootstrap->getResource('doctrine');
+
 $twitterConf = $bootstrap->getOption('twitter');
+
 $em = $doctrine->getEntityManager();
 
 $scheme = 'http://';
@@ -15,6 +17,7 @@ $url = 'stream.twitter.com/1/statuses/filter.json';
 
 $username = $twitterConf['username'];
 $password = $twitterConf['password'];
+
 
 // Blueprint function used to emit tweet objects.
 

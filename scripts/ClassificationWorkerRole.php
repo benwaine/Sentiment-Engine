@@ -53,7 +53,9 @@ while (true)
     $job = $client->getJob();
 
     $jobObj = $em->find('SE\Entity\TrackingItem', $job['content']['samplingrequest']['id']);
+
     echo "\n" . 'Sampling Term: ' . $job['content']['samplingrequest']['term'] . "\n";
+
     $factory = new SE\Tweet\Twitterator($username, $password, $url, $scheme);
 
     $factory->setMethod('POST');
@@ -83,7 +85,9 @@ while (true)
 
     $now = new DateTime();
     $nowStamp = $now->getTimestamp();
+
     $stopInterval = new DateInterval('PT1M');
+
     $now->add($stopInterval);
     $stopStamp = $now->getTimestamp();
 
@@ -92,22 +96,24 @@ while (true)
 
     $classifications = array();
 
-    
-
     while (true)
     {
         $itr = 0;
         foreach ($streamer as $tweet) /* @var $tweet \SE\Entity\ClassifiedTweet  */
         {
+
             echo '.';
+
             if ($tweet instanceof \SE\Tweet\Classifier\IClassifiable)
             {
                 if ($tweet->getLanguage() != 'en')
                 {
                     continue;
                 }
+
                 $res = $classifier->classify($tweet);
                 $classifications[] = $res;
+
             }
 
             if (++$itr % 10 == 0)
@@ -126,8 +132,9 @@ while (true)
 
                     $em->persist($datapoint);
                     $em->flush();
-                    $termStr = $jobObj->getTerm();
+                    
                     echo "\n" . 'Datapoint Recorded at ' . $meta['datetime']->format('d/M/Y H:i:s') . " for: $termStr \n";
+
 
                     $client->registerCompleteJob($job);
                     break 2;
